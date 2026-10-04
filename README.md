@@ -9,7 +9,7 @@ Alle Dateien gehören in den **Hauptordner** des Repositories (keine Unterordner
 
 | Datei | Zweck |
 |---|---|
-| `index.html` | die ganze App |
+| `index.html` | die ganze App (das Logo im Kopf ist darin eingebettet) |
 | `manifest.webmanifest` | damit die Seite als App auf den Home-Bildschirm kann |
 | `apple-touch-icon.png`, `icon-512.png` | Symbole |
 | `bricolage-grotesque.woff2` | Schrift, lokal eingebunden (keine Google-Fonts-Abfrage) |

@@ -56,7 +56,7 @@ button{cursor:pointer}
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;min-height:40px}
 .btn:hover{border-color:var(--muted)}
 .btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
-.btn.icon{width:40px;padding:0;font-size:20px;line-height:1}
+.btn.icon{width:40px;padding:0;font-size:24px;line-height:1;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
 .seg button{border:0;background:transparent;min-width:34px;min-height:38px;padding:0 6px;border-right:1px solid var(--line)}
 .seg button:last-child{border-right:0}
@@ -166,6 +166,13 @@ button{cursor:pointer}
 .wcard label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 .wcard input[type=date]{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px;color:var(--ink);min-height:42px;width:100%}
 .brrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);gap:8px}
+.khead{flex:1 1 100%;display:flex;align-items:center;gap:14px;min-width:0}
+.khead .title{flex:1 1 auto;min-width:0}
+.h1row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hlogo{margin-left:auto;flex:none;height:28px;width:auto;border-radius:7px;opacity:.9}
+.bkslot{display:inline-flex;flex:none}
+.khead h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
+.khead p{margin:0;color:var(--muted);font-size:14px}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -226,15 +233,17 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
     </div>
     <span class="spacer"></span>
     <button class="runchip" id="runChip" hidden></button>
-    <button class="btn" id="btnBackup">Sichern<i class="bdot" id="bDot" hidden></i></button>
+    <img class="hlogo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXQAAABiCAMAAAB3RdhTAAAASFBMVEX//fb8+vP39vD18uz18er08ev08er08enz8erz8Ony7+jv6+TPysO/qJXhfDGFhobGcTNCTVgeLTwcKzsbKjoYKDgSIjMNHS+W8RLMAAANlklEQVR42u2ch5Lkqg5ACdMBDEs5//+fPokobPeMO8y9W/ehqq3twQE4CCFAmF2b/OPCGoIGvUFv0qA36E0a9Aa9SYPeoDdp0Bv0Br1Jg96gN/m/hq6U0lqpfzA/zO7+cehqK9dv77n99Di9S2/k6OXxyo9pkJXWUgguhISLj9rkoBbqoeQXY2OqfcmUFJwLeT0sS5E67Qx0sRF5kL0UMl6EElRyE4ciA3XOqBzikuEeUeV5lKa0YEx3xpiu44wfYpdFDhO3QhFwsUEOpRBdh9l9MSZrKErQelVpXJ2AbmrpOijA5jnZEblUzGVnjqTz9VG75B2uL50eIHnKeLsk/RqQd9b1/TAPfd87w8UBdVJM9ZVepruHomP1SJlTdopJA9mF/JztADthXldb1qVWP0K//NmJ7cS16p6SXqxaRHP750gM3AUl69elyDoPg8fFNS39gPesjpFE0e/SNOvcsK7LPE/zvKzr6AzbUFfC9FkGE3PRNHUrHVZGczcNwzA7Ui4thO1nKMU8TTMUZeldRy8zW2q29l5jNHO+1P22XOegA1lJmkuJjl5TVNW1+B46cC4yzlj+qTesWNN4z2pr6AumEeiamx4bbRjHaRzHYZjWjJWSgAwW/y8/DE/Oy6HMy5Cgr9M8UVqao76MmB3mh02y9iQ/yGohFfNXADqmLS9D//OHdHfQoOoKVfWfoC/DRMTjGtfB8rsq0Jdx2kFfh4lCxwotwwhvCK0H7xrmxdbVQ3hIacZslj4WE6APmPFewHAk6PDugUDHZ9YBiz6m7OCNsyXlsaFmM5YkFAQ1HUv9BnQrCAO75fmUpgfgQ8E1rbknn4MOEJZp8I+CZVlB5UekPlW6fg+vmqZAY4jKgQDHoeSeSKL2Fk2vaEHXDtqCCg4S84ZWTvkl6L5ysaAfgE5s90VHkHZv1H+CjkX2VfWlB5Mc1CczPgUdIAzhQbBNzrketA6pLz0dfoEumgJIxDeOS7T52GBZAvRsjI+hq5vE/DGDBbNzYNxH38pDUrgAHQpghhl7lYQx8BXoNsjewGST3pmd5SnQbS2+Nl8afzpEMA/OF39YJzQSWHx9GnqoDjy4OAMeJucwpnrqm6E2VdrRp6uBdPaKvh9IK1pZjZfegrcFHqFxy1Tll6Fr7BKhx7wA3bLoYXc2q7quTXqCT+1Lhs43fnrMDsRCUUD/BMDi4IXNFa4z0L2iY1MtDpxgnH5IZoMx9SqWnuIJdgSSrslUJmbgAjY4S0llLKCaLrxxwY7EpJ/tcIaaQ3QlQxfO1w7t3CvQhQ6TNChapJ66kkhmRe6dxgxd6qOpntYdD8XqO5xmwvzBosqOyeSega59u4W/I5bOVxCeKwrgRxB8s2HY56diC9KMFA3NEMnRYm6gg5Lhq7HIoot3xL6Wi5mhk171EvRcQhGh68stVCYpeAJ8BF08WA8JRRmT+d0W/xx0/4qsZkX5B+LAoGs4epMuFGrquHVu4D0F+s7rKbSidcF3d6WaIb/kARRNNzNWpufvQS8cOz+Xz9alk2Jv1J+FnnFFomeg32Ufalh8lfvelc915l1t1J+HHtp4M0r7e7LuJOhXrE24903oFduMFaf8O6P+NHQofh+Kf9a8RHd/P2r6SSsvmp7u6vIoJ1+Cnv6k/mgwcbklMvROBEcHjPpnNd1moy/qIfaxTf8Oekq4Xp6Avr0F3uLdD5etYuhBYNK5DkZ52k5ZT0IP4+imoyBlMhQV6IE0mrJ3oN8yR2/TiUnXeZZ0YF5q7+Vb6HYpCWeg7+03WTukRMf42sstYNvOWM9Bvx9C58a7+HNoSALdLNHWv+G9aFV7L8WkC0V/77pFJT9DjzrzOvRDMxYMf6q+478PnaOrhP326x0/XdV+el5GBP1Re6P+YEYq/3Ho1CikLKqh8Hega4muUnjn6zNSu1nYuknaBHJr1P8W6OhcJ5N+9UYdrXpt1H8Feqof+JcfWXvRYZMim3Sy9HW7/GXQK+8C3nvA7beg2+w0fWCVUd02Jp16k8m+/D3Qi0nf/vWr0BX30yPwgD+wyhgZFVfGL3pcqN7/u9BVvXetIineaVx7sPv5ze9Av/oKYHWu/E3oeecom/Q4zvKNg3m4yvjHXn4fuuAoouw6BCvOwp52cdp/eyANkz0cP96Dbjtx2SzrbsfZsC5DZ6RP+unze366qjeT43pJXEAOa+DjfoLzxuToMfS86PAC9LJhL4XIcSv1Tt1+z67MSNXpGemzk6MHM9Kwrxm3h8Iy2hQ2lvxuSVj6Fepj0OejGSlquomGjb/up2NojXqwU0d3hvSray8pQVbr6VUVJa32w7WXMv9RaaduynvFfrci79m9svbizqy9AHTfEce8IvDkjPQgCOty+2Ez73noUZHAswgLXnpHdJOmchvQGAhOO0Pq/FsZFlM11BOrjGHis/eOdtCVknF69M6CVzXl6B5A/5OM6bPQ/U4m2TrKi44kvsHPbYoRz+vpxReJOxYZerQuNN5jmPb7ec+sp29G4a5qeAo9dTr7MejmEfS4EkBs+o3KEXQfMHhjfi+s7BvHPSAY/dOKTRcRjoZvd466e7qlAhOwwUtXImHrmgSJnYUeFilxbVel8ICYH93MItBt7HSfgn7kENKVgKLplypI8LLfrpNKSsEwxiRu5N/SZn3Ew6OBC9ttZT3cT/EnvznHqluS8uedut4RCTcQwCehg9MY90gdizZXhfy8HqgddB9YU7bu3oSuUvCFZbxItYOaoaujIEG6Md1doAWM7X0YBOn3XyptAxvc6OcMEC/1Vn9S5HmwfnubcdNHxYuKjrNCvz1aJG5QEZfnLPTYs3AjvGM+P2lT9AHfRgNAo+fp0WegJ+tiRI4K7soWh/om7sX6uBedPGYocIgwXFJwQ7bPqYrDMvTOGgv3z2PteeA4ENKWdEswLhFf2WBTXS6n2g3QZ6Hfw0A+jeOK2WF+Ps6GrKBV0HXszOZD0O0uko40xM/QSbBRiPCZw/hWx2al0J559TtwyzhW8UiJqk9d/C0+eKYoXvKse6737kbxQU6bFzQYcyySD0qKEX2k71XQY1bOLR+BHhFeDhwaewp6HVY3elbDMlXzHAFtE+MUfaymvweAkgLdkUu4EMJHPYM+BBdv9ro3gW+leU9D9w/HWLRSpJEUaaPpwbotwSq+Bz3vWVTX0mrMn1PQl6EK2cTyL2tfRzmniNwUaQi3LYsTdK0KxmCMIA2tFmDMq9PZC/Uxo5WP532QYayCNBD6eAh9E0CKWzfDOm2LJGUFfYzQQ9TfGGJ834ZOTPpB9GJc7P3BvMxUvGWoI71jYLIbcOY++iBP6NO95V/1yQfJYAxelxD9CcZ9HRwnc1wMWq+mn7juCJlPNF6AGfQjDzV9EyqN9/ZjLBKUCAPUDSvRZDgQQZZrMF64bJGqOJ2Dbh9B1wcmfWvUf4JeTVdw994aXZ1pCDlJ1rneh+Si2e+tZtsjOOCZaRjRhjncAy2Xg9zvImTjNscVnO9ZdMhGTR+mA+je9tXzfsENFmmO2dkr13SCakONdDwOUOZlozsB/bo7o1PaY7fNTA+Z6Au9Z3uu5LI9juKPpGD4p9QHo4cWTIKfYNFb6Pi+WULL8A59CWtNJxgBl9zVug7p2IsisdRmf86FFPOrPuWFR458fgYUhV310ctTXDOtpTxx5ugbedAe1fzn+ATV8UV/bO54vQAmf8IvhXMuHtyDh+t4OgJW3XJczn2qDDMNea6eOhcJz6fdv3vk6PTYq9Cvmzn9YertSI4PE36fWTolqJ6+Jbz9fnzAkSTcH5w5vB4/n/M7vFS9nFTy/i70Jp+QBr1Bb9CbNOgNepMGvUFv0qA36E0a9Aa9QW/SoDfoTf5L0FVZGb+Vn2W1HH/F5W+yEp4XxMkj8CvHwH27Iv9/Dx2/qZdieSVLG3AypeGvq+Ih7qF8fS+lKPyEXzwvgr9ETJbbbws26BVzE7/Gg1EM8NNTk9rGXUbZGfwIhN8Alz6M0n8vKaYoKY01/pOIN/yVksub/pPQ9YtSguUw4LMLIOFnj5/IwhACw9O3Goxgzu+uS7jcO8t9PFVI6TBkzwcxKO56xywm4+e3ILk+QKreK+jfBP3OaVjpeWElXMUx5mz4Pg38tBgtsYXOA2L8uJD1ZiNC13A7Z6b3ys+x8WxKZoE/tWKvFfRTVupz0JU0L0o5HtA74yMWgJplqsPv4zyCrvOPBB3+66TXaXzc2aLp1nS1FXtNrPkQ9c9BxyMU0/y8jORLdQY0NKoqWI4CXegYdW4kYW230LnWGTpQ9zfCUzYYqlxQ5tbxpYK67z5G8K9Av7+r6Uo4w4jagq2I5qXzfoqHzgjrDXSAzEKvQOidsyXZ9IJ2ye69gv5VA6ngr0n+xJHtrfVKiZYGfrqI2oaeDRalB62NMdmsNi9+7LXOoaOjsEFwLEWlz28i9uXFgv59Nv19p+AibLAu3u46ZzE4SnmvxHmvREq8Ibrf3Np47MKiE4PWG24Lx184+I5gX/A6UIdkVenof8h7+URp8tfGFc+fIb+Qj5CTj6inOVGZHOHnyqOlAqXkLLUOJrfJ0beePtFG6v/nn9WaQLUMoIjPr670GX1t0NuCV5MGvUFv0qA36E0a9Aa9SYPeoDdp0Bv0Br1Jg96gN3lH/gfL/Gnn43SiHgAAAABJRU5ErkJggg==" alt="PAEducation Solutions" width="124" height="33">
   </div>
   <div id="viewCal">
   <header class="top">
-    <div class="badges" id="badges"></div>
-    <div class="title"><h1 id="kw"></h1><p id="range"></p></div>
-    <div class="spacer"></div>
+    <div class="khead">
+      <div class="badges" id="badges"></div>
+      <div class="title"><div class="h1row"><h1 id="kw"></h1></div><p id="range"></p></div>
+    </div>
     <button class="btn primary" id="btnSources">+ Kalender</button>
     <button class="btn primary" id="btnAdd">+ Termin</button>
+    <span class="spacer"></span><span class="bkslot"><button class="btn" id="btnBackup">Sichern<i class="bdot" id="bDot" hidden></i></button></span>
   </header>
 
   <div class="bar">
@@ -252,6 +261,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   </div>
   <div id="viewTT" hidden></div>
   <div id="viewWork" hidden></div>
+  <div id="bkHold" hidden></div>
 </div>
 
 <dialog id="dSources"><div class="dlg">
@@ -670,6 +680,7 @@ function render(){
   $('cal').classList.toggle('raster',!!S.raster);
   $('rasterBtn').setAttribute('aria-pressed',String(!!S.raster));
   $('cal').innerHTML=head+allRow+body+plus;
+  placeBackupBtn();
 
   var total=data.reduce(function(a,dd){return a+dd.all.length+dd.timed.length},0);
   var foot=[];
@@ -706,6 +717,12 @@ function toast(msg){
 }
 
 /* ---------- Ereignisse ---------- */
+function stashBackupBtn(){var b=$('btnBackup'),h=$('bkHold');if(b&&h&&b.parentNode!==h)h.appendChild(b)}
+function placeBackupBtn(){
+  var v=['viewCal','viewWork','viewTT'].map(function(i){return $(i)}).filter(function(x){return !x.hidden})[0];
+  var slot=v&&v.querySelector('.bkslot'),b=$('btnBackup');
+  if(slot&&b&&b.parentNode!==slot)slot.appendChild(b);
+}
 function lockScroll(){document.documentElement.classList.toggle('lock',!!document.querySelector('dialog[open]'))}
 document.addEventListener('close',function(){lockScroll()},true);
 function openDlg(d){if(!d.open)d.showModal();lockScroll()}
@@ -983,9 +1000,9 @@ function weekStats(mon){
 function renderWork(){
   var mon=wMon(),st=weekStats(mon),r=S.work.running,sel=r?r.cat:wSel,iw=isoWeek(mon),t=iw.w%2===1?'A':'B';
   var todayMs=sod(new Date()).getTime();
-  var h='<div class="whead"><div class="badge '+t+'" style="width:48px;height:48px;font-size:32px;border-radius:12px" role="img" aria-label="Woche '+t+'">'+t+'</div>'+
-    '<div><h2>KW '+iw.w+'</h2><p>'+fmtShort(mon)+' – '+fmtShort(addDays(mon,6))+' '+addDays(mon,6).getFullYear()+'</p></div><span class="spacer"></span>'+
-    '<button class="btn" id="wStats">Statistik</button><button class="btn icon" id="wPrev" aria-label="Vorherige Woche">‹</button><button class="btn" id="wToday">Heute</button><button class="btn icon" id="wNext" aria-label="Nächste Woche">›</button></div>';
+  var h='<div class="khead" style="margin-bottom:12px"><div class="badge '+t+'" role="img" aria-label="Woche '+t+'">'+t+'</div>'+
+    '<div class="title"><div class="h1row"><h2>KW '+iw.w+'</h2><button class="btn" id="wStats">Statistik</button></div><p>'+fmtShort(mon)+' – '+fmtShort(addDays(mon,6))+' '+addDays(mon,6).getFullYear()+'</p></div></div>'+
+    '<div class="bar"><button class="btn icon" id="wPrev" aria-label="Vorherige Woche">‹</button><button class="btn" id="wToday">Heute</button><button class="btn icon" id="wNext" aria-label="Nächste Woche">›</button><span class="spacer"></span><span class="bkslot"></span></div>';
 
   // Timer
   h+='<div class="wcard"><div class="cats">'+visCats().map(function(c){
@@ -1039,7 +1056,9 @@ function renderWork(){
   }
   h+='</div>';
   var active=document.activeElement&&document.activeElement.id;
+  stashBackupBtn();
   $('viewWork').innerHTML=h;
+  placeBackupBtn();
   if(active==='wSoll'){var el=$('wSoll');if(el)el.focus()}
 }
 
@@ -1396,7 +1415,8 @@ function renderTT(){
   if(!ttView)ttView=wkType(new Date());
   var vis=tt.lessons.filter(function(l){return l.wk==='ab'||l.wk===ttView});
   vis.forEach(function(l){for(var k=0;k<l.span;k++)occ[l.day+'|'+(l.slot+k)]=1});
-  var h='<div class="whead"><button type="button" class="btn" id="ttBack">‹ Kalender</button><div><h2>Stundenplan</h2><p>Tippe auf ein Feld, um eine Stunde einzutragen.</p></div><span class="spacer"></span>'+
+  var h='<div class="khead" style="margin-bottom:12px"><div class="title"><div class="h1row"><h2>Stundenplan</h2><span class="bkslot"></span></div><p>Tippe auf ein Feld, um eine Stunde einzutragen.</p></div></div>'+
+    '<div class="bar"><button type="button" class="btn" id="ttBack"><span style="font-family:system-ui,-apple-system,Roboto,sans-serif;font-size:22px;line-height:1;vertical-align:-2px">‹</span> Kalender</button><span class="spacer"></span>'+
     '<div class="seg" role="group" aria-label="Woche">'+['A','B'].map(function(t){return '<button type="button" data-ttwk="'+t+'" aria-pressed="'+(ttView===t)+'">'+t+'-Woche</button>'}).join('')+'</div></div>';
   var g='<div class="ttgrid" style="grid-template-rows:26px '+tt.slots.map(function(x){return x.pause?(x.num?'34px':'24px'):'minmax(62px,auto)'}).join(' ')+'"><div></div>'+
     ['Mo','Di','Mi','Do','Fr'].map(function(d,i){return '<div class="tth" style="grid-column:'+(i+2)+';grid-row:1">'+d+'</div>'}).join('')+
@@ -1414,7 +1434,9 @@ function renderTT(){
   h+='<div class="wcard"><div class="two"><label>Gültig ab <input type="date" id="ttFrom" value="'+esc(tt.from||'')+'"></label><label>Bis (optional) <input type="date" id="ttTo" value="'+esc(tt.to||'')+'"></label></div>'+
     '<div class="wacts" style="margin-top:12px"><button type="button" class="btn" id="ttSlots">Stundenzeiten anpassen</button><button type="button" class="btn" id="ttBreaks">Ferien eintragen'+(tt.breaks.length?' ('+tt.breaks.length+')':'')+'</button></div>'+
     '<p class="muted" style="margin:0">Die Stunden erscheinen automatisch im Kalender, die A/B-Woche wird beachtet. Vergangene Stunden zählen als Unterricht im Arbeitszeittracker.</p></div>';
+  stashBackupBtn();
   $('viewTT').innerHTML=h;
+  placeBackupBtn();
 }
 function lDefaultTimes(){
   if(!ttEdit)return;
