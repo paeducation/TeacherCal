@@ -1,0 +1,15 @@
+{
+  "name": "Lehrerkalender",
+  "short_name": "Lehrerkalender",
+  "description": "Kalender, Stundenplan und Arbeitszeiterfassung für Lehrkräfte. Alle Daten bleiben auf dem Gerät.",
+  "lang": "de",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#14202B",
+  "theme_color": "#14202B",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
