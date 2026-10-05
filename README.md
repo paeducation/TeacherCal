@@ -11,7 +11,7 @@ Alle Dateien gehören in den **Hauptordner** des Repositories (keine Unterordner
 |---|---|
 | `index.html` | die ganze App (das Logo im Kopf ist darin eingebettet) |
 | `manifest.webmanifest` | damit die Seite als App auf den Home-Bildschirm kann |
-| `sw.js` | macht die App offline nutzbar (Service Worker) |
+| `sw.js` | macht die App offline nutzbar und meldet neue Versionen (Service Worker) |
 | `apple-touch-icon.png`, `icon-512.png` | Symbole |
 | `bricolage-grotesque.woff2` | Schrift, lokal eingebunden (keine Google-Fonts-Abfrage) |
 | `FONT-LICENSE.txt` | Lizenz der Schrift (SIL Open Font License) |
@@ -29,6 +29,15 @@ Alle Dateien gehören in den **Hauptordner** des Repositories (keine Unterordner
 In Safari die Adresse öffnen, **Teilen → Zum Home-Bildschirm**. Die Seite startet dann wie eine App.
 Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zum Home-Bildschirm hinzugefügte Seite ist davon ausgenommen. Mach trotzdem regelmäßig eine Sicherung.
 
+## Bedienung in Kürze
+
+- **Erste Schritte:** Beim ersten Start zeigt eine Karte oben die drei Schritte (Stundenplan eintragen, Kalender importieren, Wochenziel prüfen). Mit × blendest du sie aus.
+- **Termin anlegen:** Auf eine freie Stelle im Kalender tippen. Tag und Uhrzeit sind schon eingetragen, die Schnellauswahl (Konferenz, Elternabend …) setzt Titel und Arbeitszeit-Kategorie.
+- **Zeit erfassen:** In „Arbeitszeit“ auf eine Kategorie tippen startet die Zeit sofort, ein zweiter Tipp stoppt sie.
+- **Stundenplan:** Beim Eintragen helfen Vorschläge aus bisherigen Stunden und die Auswahl „Dieselbe Stunde auch an“ (Mo bis Fr).
+- **Rückgängig:** Nach dem Löschen erscheint kurz „Rückgängig“.
+- **Ansicht:** Anzahl der Tage und das Stundenraster stellst du über „Ansicht“ ein.
+
 ## Datenschutz
 
 - **Keine Daten auf GitHub:** Termine, Stundenplan und Arbeitszeiten werden nur im Browser (localStorage) gespeichert. Die Seite stellt keine Verbindung zu anderen Servern her. Das ist zusätzlich in `index.html` per Content-Security-Policy (`connect-src 'none'`) festgelegt.
@@ -41,13 +50,14 @@ Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zu
 - **Daten gehören zur Adresse:** Der Browser speichert die Daten pro Webadresse. Wechselst du die Adresse (z. B. anderer Repository-Name), sind die Daten dort nicht vorhanden. Zum Umziehen: in der alten Version **Sichern**, in der neuen **Aus Sicherung wiederherstellen**.
 - **Browserdaten löschen = Daten weg.** Darum regelmäßig **Sichern** (der Punkt am Button erinnert nach einer Woche).
 - **Kalender-Abos:** Der automatische Abruf von Abo-Links funktioniert nicht, weil die Server (z. B. IServ, WebUntis) den Abruf durch Webseiten nicht erlauben. Kalender werden als `.ics`-Datei importiert („+ Kalender“) und lassen sich pro Kalender neu importieren.
-- **Offline:** Nach dem ersten Aufruf öffnet die App auch ohne Internet. Ist eine Verbindung da, lädt sie immer die neueste Version. Dafür muss `sw.js` mit hochgeladen sein.
+- **Offline:** Nach dem ersten Aufruf öffnet die App auch ohne Internet. Dafür muss `sw.js` mit hochgeladen sein.
+- **Updates mit Pop-up:** Lädst du eine neue Version auf GitHub hoch, meldet die App beim nächsten Öffnen mit Internet „Update verfügbar!“. Du erstellst zuerst ein Backup, dann tippst du auf „Update jetzt ausführen“. Bis dahin läuft die alte Version weiter. Die Version steht im Fenster „Sichern“.
 - **Dauerhafter Speicher:** Die App bittet den Browser beim Start, die Daten dauerhaft zu speichern. Ob er zusagt, steht im Fenster „Sichern“. Eine Sicherung bleibt trotzdem wichtig.
 - **Stundenplan-Versionen:** Änderungen am Stundenplan kannst du „ab nächster Woche“ als neue Version anlegen. Dann bleiben vergangene Wochen und ihre erfasste Unterrichtszeit unverändert.
 
 ## Aktualisieren
 
-Eine neue `index.html` (und falls vorhanden `sw.js`) im Repository hochladen und mit dem gleichen Dateinamen ersetzen. Die Daten im Browser bleiben erhalten.
+Eine neue `index.html` **und** die neue `sw.js` im Repository hochladen und mit dem gleichen Dateinamen ersetzen (beide gehören zusammen). Die Daten im Browser bleiben erhalten. Auf dem Handy erscheint danach beim nächsten Öffnen das Pop-up „Update verfügbar!“.
 
 ## Hinweis zur Arbeitszeit
 

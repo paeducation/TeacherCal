@@ -1,11 +1,18 @@
-/* Service Worker: macht den Lehrerkalender offline nutzbar.
-   Strategie: Netzwerk zuerst (damit neue Versionen sofort ankommen), sonst der gespeicherte Stand.
-   Es werden nur Dateien dieser Seite zwischengespeichert, keine Kalenderdaten. */
-const CACHE = 'lehrerkalender-v2';
+/* Service Worker des Lehrerkalenders (Version 2026-10-05 19:45).
+   - Die App läuft aus dem Zwischenspeicher, auch ohne Internet.
+   - Eine neue Version wird im Hintergrund geladen und erst nach Bestätigung aktiviert
+     (Pop-up "Update verfügbar!"). So kannst du vorher ein Backup erstellen.
+   - Es werden nur Dateien dieser Seite gespeichert, keine Kalenderdaten. */
+const VERSION = '2026-10-05 19:45';
+const CACHE = 'lehrerkalender-' + VERSION;
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'apple-touch-icon.png', 'icon-512.png', 'bricolage-grotesque.woff2'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' })))));
+});
+
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
@@ -20,11 +27,9 @@ self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
   e.respondWith(
-    fetch(r)
-      .then(res => {
-        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(r, copy)); }
-        return res;
-      })
-      .catch(() => caches.match(r, { ignoreSearch: true }).then(m => m || caches.match('index.html')))
+    caches.match(r, { ignoreSearch: true }).then(hit => hit || fetch(r).then(res => {
+      if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(r, copy)); }
+      return res;
+    }).catch(() => caches.match('index.html')))
   );
 });

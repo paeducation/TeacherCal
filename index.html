@@ -144,7 +144,7 @@ button{cursor:pointer}
 .hpc{display:flex;flex-direction:column;gap:4px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
 .hbtn{width:32px;height:30px;border:1px solid var(--line);background:var(--bg);border-radius:8px;font-size:18px;line-height:1;padding:0}
 .hbtn:hover{border-color:var(--muted)}
-.ttgrid{display:grid;grid-template-columns:40px repeat(5,minmax(0,1fr));gap:4px;min-width:340px}
+.ttgrid{display:grid;grid-template-columns:40px repeat(5,minmax(0,1fr));gap:4px;min-width:0}
 .tth{text-align:center;font-weight:700;font-size:13px;align-self:center}
 .ttt{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--muted);line-height:1.2}
 .ttt b{color:var(--ink);font-size:13px}
@@ -182,6 +182,20 @@ button{cursor:pointer}
 .bkslot{display:inline-flex;flex:none}
 .khead h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
 .khead p{margin:0;color:var(--muted);font-size:14px}
+.toast{display:flex;align-items:center;gap:6px}
+.tundo{margin-left:6px;border:0;background:transparent;color:inherit;text-decoration:underline;font-weight:700;padding:6px 8px;cursor:pointer;border-radius:8px}
+.obcard{margin-bottom:12px}
+.obhead{display:flex;justify-content:space-between;align-items:center}
+.obsteps{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.obrow{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center}
+.obn{width:28px;height:28px;border-radius:50%;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:14px}
+.obrow.done .obn{background:var(--wkB);border-color:var(--wkB);color:#fff}
+.obrow.done .obt b{color:var(--muted);text-decoration:line-through}
+.obt b{display:block;font-size:15px}
+.obt small{display:block;color:var(--muted);font-size:13px}
+.col{cursor:pointer}
+#eMore summary{cursor:pointer;color:var(--muted);font-size:14px;padding:6px 0}
+.ttsum{cursor:pointer;font-weight:600;font-size:14px;padding:10px 0 2px;color:var(--ink)}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -250,18 +264,18 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
       <div class="badges" id="badges"></div>
       <div class="title"><div class="h1row"><h1 id="kw"></h1></div><p id="range"></p></div>
     </div>
-    <button class="btn primary" id="btnSources">+ Kalender</button>
+    <button class="btn" id="btnSources">+ Kalender</button>
     <button class="btn primary" id="btnAdd">+ Termin</button>
     <span class="spacer"></span><span class="bkslot"><button class="btn" id="btnBackup">Sichern<i class="bdot" id="bDot" hidden></i></button></span>
   </header>
+  <div id="obCard"></div>
 
   <div class="bar">
     <button class="btn icon" id="prev" aria-label="Zurück">‹</button>
     <button class="btn" id="today">Heute</button>
     <button class="btn icon" id="next" aria-label="Weiter">›</button>
     <span class="spacer"></span>
-    <select class="sel" id="daysSel" aria-label="Anzahl angezeigter Tage"></select>
-    <button class="btn" type="button" id="rasterBtn" aria-pressed="false">Stundenraster</button>
+    <button class="btn" type="button" id="viewBtn">Ansicht</button>
   </div>
 
   <div class="legend" id="legend"></div>
@@ -272,6 +286,13 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <div id="viewWork" hidden></div>
   <div id="bkHold" hidden></div>
 </div>
+
+<dialog id="dView"><div class="dlg">
+  <h2>Ansicht</h2>
+  <label>Angezeigte Tage pro Woche <select id="daysSel" aria-label="Anzahl angezeigter Tage"></select></label>
+  <label class="inline"><input type="checkbox" id="rasterChk"> Stundenraster mit Stundennummern einblenden</label>
+  <div class="actions"><button class="btn primary" type="button" data-close>Fertig</button></div>
+</div></dialog>
 
 <dialog id="dSources"><div class="dlg">
   <h2>Kalender</h2>
@@ -310,6 +331,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
 
 <dialog id="dEvent"><form class="dlg" id="fEvent" method="dialog">
   <h2 id="eHead">Neuer Termin</h2>
+  <div id="ePresetWrap"><div class="seglabel" style="margin-bottom:6px">Schnellauswahl</div><div class="cats" id="ePresets"></div></div>
   <label>Titel <input type="text" id="eTitle" required></label>
   <label>Datum <input type="date" id="eDate" required></label>
   <label class="inline"><input type="checkbox" id="eAll"> Ganztägig</label>
@@ -317,22 +339,37 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
     <label>Beginn <input type="time" id="eStart" value="15:00"></label>
     <label>Ende <input type="time" id="eEnd" value="16:00"></label>
   </div>
-  <label>Ort (optional) <input type="text" id="eLoc"></label>
   <label id="eCatWrap">Als Arbeitszeit zählen <select id="eCat"></select></label>
-  <div>
-    <div class="seglabel" style="margin-bottom:6px">Farbe</div>
-    <div class="swatches" id="eColors"></div>
-  </div>
+  <details id="eMore">
+    <summary>Mehr Optionen (Ort, Farbe)</summary>
+    <label style="margin-top:8px">Ort (optional) <input type="text" id="eLoc"></label>
+    <div style="margin-top:10px">
+      <div class="seglabel" style="margin-bottom:6px">Farbe</div>
+      <div class="swatches" id="eColors"></div>
+    </div>
+  </details>
   <div class="actions">
     <button class="btn" type="button" data-close>Abbrechen</button>
     <button class="btn primary" type="submit">Speichern</button>
   </div>
 </form></dialog>
 
+<dialog id="dUpdate"><div class="dlg">
+  <h2>Update verfügbar!</h2>
+  <p class="hint">Eine neue Version des Lehrerkalenders ist bereit. Erstelle zuerst ein Backup und führe dann das Update aus. Deine Daten bleiben beim Update erhalten.</p>
+  <div class="actions" style="flex-direction:column;align-items:stretch">
+    <button class="btn" type="button" id="uBackup">1. Backup erstellen</button>
+    <button class="btn primary" type="button" id="uGo">2. Update jetzt ausführen</button>
+    <button class="btn" type="button" id="uLater">Später</button>
+  </div>
+  <p class="muted" id="uState"></p>
+</div></dialog>
+
 <dialog id="dBackup"><div class="dlg">
   <h2>Sicherung</h2>
   <p class="hint" id="bInfo"></p>
   <p class="muted" id="bPersist"></p>
+  <p class="muted" id="bVer"></p>
   <p class="muted">Die Datei enthält deine Termine, Stundenplan und Arbeitszeiten, möglicherweise mit personenbezogenen Daten. Speichere sie nur an einem Ort, der dafür freigegeben ist.</p>
   <div class="actions">
     <button class="btn" id="bCopy" hidden>Als Text kopieren</button>
@@ -352,6 +389,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <p class="hint" id="lWhere"></p>
   <label>Bezeichnung (z. B. Mathe 9b) <input type="text" id="lTitle" list="lTitles" required autocomplete="off"></label>
   <datalist id="lTitles"></datalist>
+  <div class="cats" id="lChips" style="margin-top:-4px"></div>
   <label>Raum (optional) <input type="text" id="lRoom" autocomplete="off"></label>
   <div class="two">
     <label>Gilt in
@@ -363,6 +401,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
     </label>
     <label>Dauer <select id="lSpan"></select></label>
   </div>
+  <div id="lDaysWrap"><div class="seglabel" style="margin-bottom:6px">Dieselbe Stunde auch an</div><div class="cats" id="lDays"></div></div>
   <label class="inline"><input type="checkbox" id="lCustom"> Abweichende Uhrzeit (z. B. Beginn 7:45 Uhr)</label>
   <div class="two" id="lTimes" hidden>
     <label>Beginn <input type="time" id="lCs"></label>
@@ -496,7 +535,8 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var S={raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
+var APP_VERSION='2026-10-05 19:45';
+var S={ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
 /* ---------- Datum ---------- */
@@ -519,10 +559,10 @@ function $(id){return document.getElementById(id)}
 
 /* ---------- Speicher ---------- */
 function load(){
-  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};return true}}catch(e){}
+  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};return true}}catch(e){}
   return false;
 }
-function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,tt:S.tt}))}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,tt:S.tt}))}catch(e){}}
 function ensureLocal(){
   if(!S.sources.some(function(s){return s.id==='local'})){
     S.sources.unshift({id:'local',name:'Meine Termine',type:'local',color:'#64748B',visible:true,events:[],url:''});
@@ -704,30 +744,52 @@ function render(){
     }).join('');
     var now='';
     if(isT){var nm=new Date();var m=nm.getHours()*60+nm.getMinutes();if(m>=h0*60&&m<=h1*60)now='<div class="now" style="top:'+((m/60-h0)*HOUR)+'px"></div>'}
-    return '<div class="col'+(isT?' today':'')+'" style="--h:'+H+'px;--hour:'+HOUR+'px">'+bands+now+evs+'</div>';
+    return '<div class="col'+(isT?' today':'')+'" style="--h:'+H+'px;--hour:'+HOUR+'px" data-d="'+dInput(d)+'" data-h0="'+h0+'">'+bands+now+evs+'</div>';
   }).join('')+'</div>';
 
   var plus='<div class="row" style="'+style+'"><div class="tc hpc">'+(h1<24?'<button class="hbtn" data-hplus="1" aria-label="Eine Stunde mehr anzeigen (bis '+(h1+1)+' Uhr)">+</button>':'')+(S.hEnd>20&&h1>20?'<button class="hbtn" data-hplus="-1" aria-label="Eine Stunde weniger anzeigen">−</button>':'')+'</div><div style="grid-column:2/-1;border-top:1px solid var(--line)"></div></div>';
   $('cal').classList.toggle('raster',!!S.raster);
   var gut=S.raster?60:42,cwid=$('cal').clientWidth;
   $('cal').classList.toggle('compact',cwid>0&&(cwid-gut)/n<96);
-  $('rasterBtn').setAttribute('aria-pressed',String(!!S.raster));
+  $('rasterChk').checked=!!S.raster;
   $('cal').innerHTML=head+allRow+body+plus;
   placeBackupBtn();
+  renderOb();
 
   var total=data.reduce(function(a,dd){return a+dd.all.length+dd.timed.length},0);
   var foot=[];
   if(!visibleSources().length)foot.push('Alle Kalender sind ausgeblendet.');
   else if(!total)foot.push('Keine Termine in diesem Zeitraum.');
   if(dupes)foot.push(dupes+(dupes===1?' doppelter Termin':' doppelte Termine')+' aus mehreren Kalendern zusammengeführt.');
+  foot.push('Tipp: Auf eine freie Stelle tippen legt dort einen Termin an.');
   var fo=$('foot');fo.textContent=foot.join(' ');
-  if(!ttAnyLessons()&&!S.sources.some(function(x){return x.type==='webuntis'&&x.events.length})){
-    var hb=document.createElement('button');hb.type='button';hb.className='lnk';hb.textContent='Stundenplan einrichten';
-    hb.onclick=function(){setTab('tt')};
-    if(fo.textContent)fo.appendChild(document.createTextNode(' '));
-    fo.appendChild(hb);
-  }
 }
+
+/* ---------- Erste Schritte ---------- */
+function renderOb(){
+  var el=$('obCard');if(!el)return;
+  var s1=ttAnyLessons()||S.sources.some(function(x){return x.type==='webuntis'&&x.events.length});
+  var s2=S.sources.some(function(x){return x.id!=='local'&&x.id!=='stundenplan'});
+  var s3=!!(S.ob.goal||S.work.sollUser);
+  if(S.ob.hide||(s1&&s3)){el.innerHTML='';return}
+  function row(n,done,title,sub,act,label){
+    return '<li class="obrow'+(done?' done':'')+'"><span class="obn">'+(done?'✓':n)+'</span><div class="obt"><b>'+title+'</b><small>'+sub+'</small></div>'+
+      (done?'':'<button type="button" class="btn" data-ob="'+act+'">'+label+'</button>')+'</li>';
+  }
+  el.innerHTML='<div class="wcard obcard"><div class="obhead"><b>Erste Schritte</b><button type="button" class="x" id="obX" aria-label="Ausblenden">×</button></div><ol class="obsteps">'+
+    row(1,s1,'Stundenplan eintragen','Einmal einrichten, danach zählt der Unterricht automatisch.','tt','Einrichten')+
+    row(2,s2,'Kalender importieren','Optional: IServ, WebUntis oder Google als .ics-Datei.','cal','Importieren')+
+    row(3,s3,'Wochenziel prüfen','Voreingestellt: '+S.work.soll+' Stunden pro Woche.','goal','Prüfen')+'</ol></div>';
+}
+$('obCard').addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-ob]');
+  if(ev.target.closest('#obX')){S.ob.hide=true;save();renderOb();return}
+  if(!b)return;
+  var a=b.dataset.ob;
+  if(a==='tt')setTab('tt');
+  else if(a==='cal')$('btnNewSrc').onclick();
+  else if(a==='goal'){S.ob.goal=true;save();setTab('work')}
+});
 
 /* ---------- Kalender-Verwaltung ---------- */
 function renderSources(){
@@ -744,9 +806,19 @@ function renderSources(){
   $('btnDemoOff').hidden=!(S.sources.some(function(s){return s.demo})||S.work.entries.some(function(e){return e.demo}));
 }
 
-function toast(msg){
-  var t=$('toast');t.textContent=msg;t.hidden=false;
-  clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true},5500);
+function toast(msg,undoFn){
+  var t=$('toast');
+  var open=Array.prototype.filter.call(document.querySelectorAll('dialog'),function(d){return d.open}).pop();
+  (open||document.body).appendChild(t);
+  t.textContent='';
+  var sp=document.createElement('span');sp.textContent=msg;t.appendChild(sp);
+  if(undoFn){
+    var b=document.createElement('button');b.type='button';b.className='tundo';b.textContent='Rückgängig';
+    b.onclick=function(){t.hidden=true;undoFn()};
+    t.appendChild(b);
+  }
+  t.hidden=false;
+  clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true},undoFn?8000:5500);
 }
 
 /* ---------- Ereignisse ---------- */
@@ -765,7 +837,10 @@ function checkPersist(){
 }
 function requestPersist(){try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().then(checkPersist).catch(function(){})}catch(e){}}
 function lockScroll(){document.documentElement.classList.toggle('lock',!!document.querySelector('dialog[open]'))}
-document.addEventListener('close',function(){lockScroll()},true);
+document.addEventListener('close',function(){
+  lockScroll();
+  var t=$('toast');if(t&&t.parentNode!==document.body&&!(t.parentNode.open))document.body.appendChild(t);
+},true);
 function openDlg(d){if(!d.open)d.showModal();lockScroll()}
 document.addEventListener('click',function(ev){
   var t=ev.target;
@@ -779,8 +854,12 @@ document.addEventListener('click',function(ev){
   if(ri){reTarget=ri.dataset.reimp;$('reFile').value='';$('reFile').click();return}
   var del=t.closest('[data-del]');
   if(del){
-    S.sources=S.sources.filter(function(s){return s.id!==del.dataset.del});
-    save();renderSources();render();return;
+    var si=S.sources.findIndex(function(s){return s.id===del.dataset.del}),sd=S.sources[si];
+    if(!sd)return;
+    S.sources.splice(si,1);
+    save();renderSources();render();
+    toast('„'+sd.name+'“ entfernt.',function(){S.sources.splice(Math.min(si,S.sources.length),0,sd);save();renderSources();render()});
+    return;
   }
 });
 document.addEventListener('change',function(ev){
@@ -797,7 +876,8 @@ document.addEventListener('change',function(ev){
 
 var rzT=null;
 window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(S.tab==='cal')render()},150)});
-$('rasterBtn').onclick=function(){S.raster=!S.raster;save();render()};
+$('viewBtn').onclick=function(){openDlg($('dView'))};
+$('rasterChk').onchange=function(){S.raster=this.checked;save();render()};
 $('daysSel').addEventListener('change',function(){S.n=+this.value;save();render()});
 $('prev').onclick=function(){var st=viewStart();S.anchor=addDays(st,-7);render()};
 $('next').onclick=function(){var st=viewStart();S.anchor=addDays(st,7);render()};
@@ -854,14 +934,47 @@ function buildEventColors(sel){
     return '<span><input type="radio" name="ec" id="ec'+i+'" value="'+c+'"'+((c===(sel||''))?' checked':'')+'><label for="ec'+i+'" style="--c:'+(c||base)+'" title="'+(c?c:'Standardfarbe')+'"></label></span>';
   }).join('');
 }
-$('btnAdd').onclick=function(){
+var EV_PRESETS=[
+  {t:'Konferenz',cat:'konferenz',dur:90},
+  {t:'Elternabend',cat:'gespraech',dur:90},
+  {t:'Elterngespräch',cat:'gespraech',dur:30},
+  {t:'Dienstbesprechung',cat:'konferenz',dur:60},
+  {t:'Aufsicht',cat:'aufsicht',dur:20}
+];
+function buildPresets(){
+  $('ePresets').innerHTML=EV_PRESETS.map(function(p,i){return '<button type="button" class="cat" style="--c:var(--wkB)" aria-pressed="false" data-preset="'+i+'">'+esc(p.t)+'</button>'}).join('');
+}
+$('ePresets').addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-preset]');if(!b)return;
+  var p=EV_PRESETS[+b.dataset.preset];
+  $('eTitle').value=p.t;
+  if(Array.prototype.some.call($('eCat').options,function(o){return o.value===p.cat}))$('eCat').value=p.cat;
+  $('eAll').checked=false;$('eTimes').hidden=false;$('eCatWrap').hidden=false;
+  $('eEnd').value=addMin($('eStart').value||'15:00',p.dur);
+  Array.prototype.forEach.call($('ePresets').children,function(c){c.setAttribute('aria-pressed',String(c===b))});
+});
+function openNewEvent(o){
+  o=o||{};
   evEdit=null;$('eHead').textContent='Neuer Termin';
-  $('fEvent').reset();buildEventColors('');buildEventCats('');$('eCatWrap').hidden=false;
-  var d=sod(new Date());
-  $('eDate').value=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  $('fEvent').reset();buildEventColors('');buildEventCats('');buildPresets();
+  $('eCatWrap').hidden=false;$('ePresetWrap').hidden=false;$('eMore').open=false;
+  var now=new Date(),h=now.getHours()+1;if(h<7||h>19)h=15;
+  $('eDate').value=o.date||dInput(sod(now));
+  $('eStart').value=o.start||pad(h)+':00';
+  $('eEnd').value=o.end||pad(h+1)+':00';
   $('eTimes').hidden=false;
   openDlg($('dEvent'));
-};
+}
+$('btnAdd').onclick=function(){openNewEvent({})};
+$('cal').addEventListener('click',function(ev){
+  if(ev.target.closest('[data-ev],[data-hplus]'))return;
+  var col=ev.target.closest('.col');if(!col||!col.dataset.d)return;
+  var r=col.getBoundingClientRect(),h0=+col.dataset.h0;
+  var min=Math.round((h0*60+(ev.clientY-r.top)/HOUR*60)/15)*15;
+  min=Math.max(0,Math.min(min,23*60));
+  var en=Math.min(min+60,24*60-1);
+  openNewEvent({date:col.dataset.d,start:pad(Math.floor(min/60))+':'+pad(min%60),end:pad(Math.floor(en/60))+':'+pad(en%60)});
+});
 $('eAll').onchange=function(){$('eTimes').hidden=this.checked;$('eCatWrap').hidden=this.checked};
 $('fEvent').addEventListener('submit',function(ev){
   ev.preventDefault();
@@ -950,12 +1063,15 @@ $('dtEdit').onclick=function(){
   if(!e.allDay){$('eStart').value=hm(e.start);$('eEnd').value=hm(e.end)}
   $('eLoc').value=e.loc||'';
   buildEventColors(e.color||'');buildEventCats(e.cat||'');$('eCatWrap').hidden=!!e.allDay;
+  $('ePresetWrap').hidden=true;$('eMore').open=!!(e.loc||e.color);
   openDlg($('dEvent'));
 };
 $('dtDelete').onclick=function(){
   if(!detailRef)return;
-  detailRef.s.events=detailRef.s.events.filter(function(x){return x.id!==detailRef.e.id});
+  var s0=detailRef.s,e0=detailRef.e;
+  s0.events=s0.events.filter(function(x){return x.id!==e0.id});
   save();$('dDetail').close();render();
+  toast('Termin gelöscht.',function(){s0.events.push(e0);save();render()});
 };
 
 /* ---------- Arbeitszeit ---------- */
@@ -997,19 +1113,23 @@ function startTimer(c,note){
 }
 function stopTimer(silent){
   var r=S.work.running;if(!r)return;
-  var now=Date.now();
+  var now=Date.now(),before=S.work.entries.length;
   addEntry(r.cat,r.start,now,r.note);
+  var added=S.work.entries.slice(before);
   S.work.running=null;wNoteVal='';
   if(!silent)S.wAnchor=new Date(r.start);
   save();updateChip();
   if(!silent&&S.tab==='work')renderWork();
-  if(!silent)toast('Gespeichert: '+durTxt(now-r.start)+' '+catOf(r.cat).name+'.');
+  if(!silent)toast('Gespeichert: '+durTxt(now-r.start)+' '+catOf(r.cat).name+'.',function(){
+    S.work.entries=S.work.entries.filter(function(e){return added.indexOf(e)<0});
+    S.work.running=r;save();updateChip();if(S.tab==='work')renderWork();
+  });
 }
 function updateChip(){
   var r=S.work.running,c=$('runChip');
   if(!r){c.hidden=true;return}
   var ct=catOf(r.cat);
-  c.hidden=false;
+  c.hidden=(S.tab==='work');
   c.innerHTML='<i style="--c:'+ct.color+'"></i><span>'+esc(ct.name)+'</span><span class="rt">'+hms((Date.now()-r.start)/1000)+'</span>';
 }
 setInterval(function(){
@@ -1066,10 +1186,12 @@ function renderWork(){
 
   // Timer
   h+='<div class="wcard"><div class="cats">'+visCats().map(function(c){
-    return '<button type="button" class="cat" data-cat="'+c.id+'" aria-pressed="'+(c.id===sel)+'" style="--c:'+c.color+'"><i class="dot" style="--c:'+c.color+'"></i>'+esc(c.name)+'</button>';
-  }).join('')+'<button type="button" class="cat" id="wCats" style="border-style:dashed">Kategorien bearbeiten</button></div><div class="timerrow"><div class="big" id="bigT">'+(r?hms((Date.now()-r.start)/1000):'0:00:00')+'</div>'+
-    (r?'<div class="wrun">'+esc(r.note||'läuft seit '+hm(r.start)+' Uhr')+'</div>':'<input class="wnote" id="wNote" type="text" placeholder="Notiz (optional)" value="'+esc(wNoteVal)+'">')+
-    '<button class="btn primary go'+(r?' stop':'')+'" id="wGo">'+(r?'Stopp':'Start')+'</button></div></div>';
+    return '<button type="button" class="cat" data-cat="'+c.id+'" aria-pressed="'+(!!r&&c.id===r.cat)+'" style="--c:'+c.color+'"><i class="dot" style="--c:'+c.color+'"></i>'+esc(c.name)+'</button>';
+  }).join('')+'<button type="button" class="cat" id="wCats" style="border-style:dashed">Kategorien bearbeiten</button></div>'+
+    '<p class="muted" style="margin:10px 0 0">'+(r?'Läuft: '+esc(catOf(r.cat).name)+'. Tippe die Kategorie oder „Stopp“ zum Beenden.':'Tippe auf eine Kategorie, um die Zeit sofort zu starten.')+'</p>'+
+    '<div class="timerrow"><div class="big" id="bigT">'+(r?hms((Date.now()-r.start)/1000):'0:00:00')+'</div>'+
+    (r?'<input class="wnote" id="wNoteRun" type="text" placeholder="Notiz (optional)" value="'+esc(r.note||'')+'">':'<input class="wnote" id="wNote" type="text" placeholder="Notiz (optional)" value="'+esc(wNoteVal)+'">')+
+    (r?'<button class="btn primary go stop" id="wGo">Stopp</button>':'')+'</div></div>';
 
   // Summe
   var soll=S.work.soll*60,pct=Math.min(100,soll?st.total/soll*100:0),diff=soll-st.total;
@@ -1153,16 +1275,19 @@ $('fWork').addEventListener('submit',function(ev){
   S.wAnchor=new Date(p[0],p[1]-1,p[2]);renderWork();
 });
 $('wDel').onclick=function(){
+  var we=S.work.entries.find(function(x){return x.id===wEdit});
   S.work.entries=S.work.entries.filter(function(x){return x.id!==wEdit});
   save();$('dWork').close();renderWork();
+  if(we)toast('Eintrag gelöscht.',function(){S.work.entries.push(we);save();renderWork()});
 };
 
 $('viewWork').addEventListener('click',function(ev){
   var t=ev.target,b;
   if((b=t.closest('[data-cat]'))){
-    var c=b.dataset.cat;
-    if(S.work.running){if(S.work.running.cat!==c)startTimer(c,'')}
-    else{wSel=c;renderWork()}
+    var c=b.dataset.cat,rn=S.work.running;
+    if(rn&&rn.cat===c)stopTimer();
+    else if(rn)startTimer(c,'');
+    else{var nn=$('wNote');startTimer(c,nn?nn.value.trim():'')}
     return;
   }
   if(t.closest('#wGo')){
@@ -1178,7 +1303,10 @@ $('viewWork').addEventListener('click',function(ev){
   if(t.closest('#wAdd')){openWorkDlg();return}
   if((b=t.closest('[data-edit]'))){openWorkDlg(b.dataset.edit)}
 });
-$('viewWork').addEventListener('input',function(ev){if(ev.target.id==='wNote')wNoteVal=ev.target.value});
+$('viewWork').addEventListener('input',function(ev){
+  if(ev.target.id==='wNote')wNoteVal=ev.target.value;
+  if(ev.target.id==='wNoteRun'&&S.work.running){S.work.running.note=ev.target.value;save()}
+});
 $('viewWork').addEventListener('change',function(ev){
   if(ev.target.id==='wAuto'){S.work.autoUnt=ev.target.checked;save();renderWork();return}
   if(ev.target.id==='wSoll'){
@@ -1192,7 +1320,8 @@ function setTab(t){
   S.tab=t;
   $('viewCal').hidden=t!=='cal';$('viewWork').hidden=t!=='work';$('viewTT').hidden=t!=='tt';
   Array.prototype.forEach.call($('tabs').querySelectorAll('button'),function(b){b.setAttribute('aria-pressed',String(b.dataset.tab===t))});
-  if(t==='work')renderWork();else if(t==='tt')renderTT();else render();
+  updateChip();
+    if(t==='work')renderWork();else if(t==='tt')renderTT();else render();
 }
 $('tabs').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)setTab(b.dataset.tab)});
 $('runChip').onclick=function(){setTab('work')};
@@ -1279,8 +1408,14 @@ $('catList').addEventListener('click',function(ev){
   if((b=ev.target.closest('[data-cdel]'))){
     var id=b.dataset.cdel,c=S.work.cats.find(function(x){return x.id===id});if(!c)return;
     var used=S.work.entries.some(function(e){return e.cat===id})||(S.work.running&&S.work.running.cat===id);
-    if(used){c.hidden=true;toast('„'+c.name+'“ ausgeblendet, vorhandene Zeiten bleiben erhalten.')}
-    else S.work.cats=S.work.cats.filter(function(x){return x.id!==id});
+    var ci=S.work.cats.indexOf(c);
+    if(used){
+      c.hidden=true;
+      toast('„'+c.name+'“ ausgeblendet, vorhandene Zeiten bleiben erhalten.',function(){delete c.hidden;ensureCats();save();renderCats();renderWork()});
+    }else{
+      S.work.cats=S.work.cats.filter(function(x){return x.id!==id});
+      toast('„'+c.name+'“ entfernt.',function(){S.work.cats.splice(Math.min(ci,S.work.cats.length),0,c);ensureCats();save();renderCats();renderWork()});
+    }
     ensureCats();save();renderCats();renderWork();return;
   }
   if((b=ev.target.closest('[data-cshow]'))){
@@ -1322,6 +1457,7 @@ function backupUi(){
   $('bInfo').textContent=S.lastBackup?'Letzte Sicherung: '+fmtStamp(S.lastBackup)+'.'+(stale?' Das ist länger als eine Woche her.':''):'Noch nicht gesichert. Alle Daten liegen nur in diesem Browser auf diesem Gerät.';
   $('bSave').hidden=false;
   $('bCopy').hidden=true;
+  $('bVer').textContent='Version: '+APP_VERSION;
 }
 function browserSave(name,text){
   var blob=new Blob([text],{type:'application/json'}),a=document.createElement('a');
@@ -1334,6 +1470,7 @@ function buildBackup(){
     n:S.n,
     sources:S.sources.map(function(x){var c=JSON.parse(JSON.stringify(x));c.url='';if(c.type==='stundenplan')c.events=[];return c}),
     tt:S.tt,
+    ob:S.ob,
     hidden:S.hidden,
     cancelled:S.cancelled,
     work:{entries:S.work.entries,soll:S.work.soll,sollUser:S.work.sollUser,autoUnt:S.work.autoUnt,cats:S.work.cats}
@@ -1378,7 +1515,7 @@ $('bFile').addEventListener('change',async function(){
 $('bGo').onclick=function(){
   var o=pendingRestore;if(!o)return;
   S.n=o.n>=1&&o.n<=7?o.n:5;
-  S.sources=o.sources;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.tt=o.tt?Object.assign(defaultTT(),o.tt):defaultTT();migrateTT();
+  S.sources=o.sources;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:true,goal:true};S.tt=o.tt?Object.assign(defaultTT(),o.tt):defaultTT();migrateTT();
   S.work={entries:(o.work&&o.work.entries)||[],running:null,soll:(o.work&&o.work.soll)||41,sollUser:!!(o.work&&o.work.sollUser),autoUnt:!(o.work&&o.work.autoUnt===false),cats:(o.work&&o.work.cats)||null};
   ensureLocal();genTT();ensureCats();if(!S.work.sollUser&&S.work.soll===40)S.work.soll=41;save();pendingRestore=null;
   $('dBackup').close();
@@ -1490,7 +1627,7 @@ function genTT(){
   }
   src.events=ev;
 }
-var ttView=null,ttEdit=null,ttVerId=null,ttDelArm=null,pendingChange=null;
+var ttView=null,ttEdit=null,ttVerId=null,ttDelArm=null,pendingChange=null,ttDetOpen=false;
 var TTDAYS=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag'];
 function ttColor(t){var f=String(t||'').trim().split(/\s+/)[0].toLowerCase(),h=0;for(var i=0;i<f.length;i++)h=(h*31+f.charCodeAt(i))%360;return 'hsl('+h+',55%,48%)'}
 function renderTT(){
@@ -1521,14 +1658,17 @@ function renderTT(){
   }).join('');
   var note='';
   if(ver.from&&ver!==effV){note=ver.from>todayS?'Dieser Plan gilt erst ab dem genannten Datum.':'Dies ist ein beendeter Plan. Änderungen wirken auf die damaligen Wochen.'}
-  h+='<div class="wcard"><label>Planversion <select id="ttVer">'+opts+'</select></label>'+(note?'<p class="muted" style="margin:8px 0 0">'+note+'</p>':'')+
+  var detOpen=ttDetOpen||tt.versions.length>1||!!note;
+  h+='<div class="wcard"><div class="wacts" style="margin-top:0"><button type="button" class="btn" id="ttSlots">Stundenzeiten anpassen</button><button type="button" class="btn" id="ttBreaks">Ferien eintragen'+(tt.breaks.length?' ('+tt.breaks.length+')':'')+'</button></div>'+
+    '<details id="ttDet"'+(detOpen?' open':'')+'><summary class="ttsum">Gültigkeit und Versionen'+(ver.from?' · gültig ab '+fmtD(ver.from):'')+'</summary>'+
+    '<label style="margin-top:10px">Planversion <select id="ttVer">'+opts+'</select></label>'+(note?'<p class="muted" style="margin:8px 0 0">'+note+'</p>':'')+
     '<div class="two" style="margin-top:10px"><label>Gültig ab <input type="date" id="ttFrom" value="'+esc(ver.from||'')+'"></label><label>Bis (optional) <input type="date" id="ttTo" value="'+esc(tt.to||'')+'"></label></div>'+
-    '<div class="wacts" style="margin-top:12px"><button type="button" class="btn" id="ttVerNew">Neue Version ab Datum</button>'+(tt.versions.length>1?'<button type="button" class="btn" id="ttVerDel"'+(ttDelArm===ver.id?' style="border-color:#D64550;color:#D64550"':'')+'>'+(ttDelArm===ver.id?'Wirklich löschen?':'Version löschen')+'</button>':'')+'</div>'+
-    '<div class="wacts"><button type="button" class="btn" id="ttSlots">Stundenzeiten anpassen</button><button type="button" class="btn" id="ttBreaks">Ferien eintragen'+(tt.breaks.length?' ('+tt.breaks.length+')':'')+'</button></div>'+
-    '<p class="muted" style="margin:0">Die Stunden erscheinen automatisch im Kalender, die A/B-Woche wird beachtet. Vergangene Stunden zählen als Unterricht im Arbeitszeittracker. Für Änderungen ab einem Datum (z. B. Halbjahr) legst du eine neue Version an, dann bleiben die Wochen davor unverändert.</p></div>';
+    '<div class="wacts" style="margin-top:12px"><button type="button" class="btn" id="ttVerNew">Neue Version ab Datum</button>'+(tt.versions.length>1?'<button type="button" class="btn" id="ttVerDel"'+(ttDelArm===ver.id?' style="border-color:#D64550;color:#D64550"':'')+'>'+(ttDelArm===ver.id?'Wirklich löschen?':'Version löschen')+'</button>':'')+'</div></details>'+
+    '<p class="muted" style="margin:10px 0 0">Die Stunden erscheinen automatisch im Kalender, die A/B-Woche wird beachtet. Vergangene Stunden zählen als Unterricht im Arbeitszeittracker. Für Änderungen ab einem Datum (z. B. Halbjahr) legst du unter „Gültigkeit und Versionen“ eine neue Version an.</p></div>';
   stashBackupBtn();
   $('viewTT').innerHTML=h;
   placeBackupBtn();
+  var dtEl=$('ttDet');if(dtEl)dtEl.addEventListener('toggle',function(){ttDetOpen=dtEl.open});
 }
 function lDefaultTimes(){
   if(!ttEdit)return;
@@ -1536,6 +1676,28 @@ function lDefaultTimes(){
   $('lCs').value=S.tt.slots[ttEdit.slot].s;
   $('lCe').value=S.tt.slots[Math.min(N-1,ttEdit.slot+sp-1)].e;
 }
+function buildLessonChips(){
+  var cnt={},room={};
+  allLessons().forEach(function(l){cnt[l.title]=(cnt[l.title]||0)+1;if(!room[l.title]&&l.room)room[l.title]=l.room});
+  var list=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]}).slice(0,8);
+  $('lChips').innerHTML=list.map(function(t){
+    return '<button type="button" class="cat" style="--c:var(--wkB);min-height:34px;padding:5px 10px" data-lt="'+esc(t)+'" data-lr="'+esc(room[t]||'')+'">'+esc(t)+'</button>';
+  }).join('');
+}
+function buildDayChips(cur){
+  $('lDays').innerHTML=['Mo','Di','Mi','Do','Fr'].map(function(n,i){
+    return i===cur?'':'<button type="button" class="cat" style="--c:var(--wkB);min-height:34px;padding:5px 14px" aria-pressed="false" data-ld="'+i+'">'+n+'</button>';
+  }).join('');
+}
+$('lChips').addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-lt]');if(!b)return;
+  $('lTitle').value=b.dataset.lt;
+  if(b.dataset.lr&&!$('lRoom').value)$('lRoom').value=b.dataset.lr;
+});
+$('lDays').addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-ld]');if(!b)return;
+  b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true'));
+});
 function openLesson(id,day,slot){
   var tt=S.tt,l=id?editVer().lessons.find(function(x){return x.id===id}):null;
   ttEdit={id:l?l.id:null,day:l?l.day:day,slot:l?l.slot:slot};
@@ -1549,6 +1711,8 @@ function openLesson(id,day,slot){
   for(var i=1;i<=max;i++)opts+='<option value="'+i+'">'+(i===1?'1 Stunde':i===2?'Doppelstunde (2)':i+' Stunden')+'</option>';
   $('lSpan').innerHTML=opts;$('lSpan').value=String(l?Math.min(l.span,max):Math.min(defaultSpan(sl,ttEdit.day),max));
   $('lDel').hidden=!l;
+  buildLessonChips();$('lChips').hidden=!!l||!$('lChips').children.length;
+  buildDayChips(ttEdit.day);$('lDaysWrap').hidden=!!l;
   $('lCustom').checked=!!(l&&l.cs&&l.ce);$('lTimes').hidden=!$('lCustom').checked;
   if(l&&l.cs&&l.ce){$('lCs').value=l.cs;$('lCe').value=l.ce}else lDefaultTimes();
   openDlg($('dLesson'));
@@ -1560,10 +1724,11 @@ function needsChoice(v){
   if(v!==effVer(today))return false;
   return v.from<dInput(monday(new Date()));
 }
-function withChoice(applyFn){
+var pendingAfter=null;
+function withChoice(applyFn,afterFn){
   var v=editVer();
-  if(!needsChoice(v)){applyFn(v);afterTTChange();return}
-  pendingChange=applyFn;
+  if(!needsChoice(v)){applyFn(v);afterTTChange();if(afterFn)afterFn();return}
+  pendingChange=applyFn;pendingAfter=afterFn||null;
   $('chText').textContent='Dein Stundenplan gilt seit dem '+fmtD(v.from)+'. Eine Änderung „ab nächster Woche“ legt eine neue Planversion an: Die vergangenen Wochen und ihre erfasste Unterrichtszeit bleiben unverändert. „Rückwirkend“ ändert auch die vergangenen Wochen.';
   openDlg($('dChange'));
 }
@@ -1572,14 +1737,15 @@ $('chFuture').onclick=function(){
   var v=editVer(),nm=dInput(addDays(monday(new Date()),7));
   var target=S.tt.versions.find(function(x){return x.from===nm})||cloneVersion(v,nm);
   ttVerId=target.id;
-  var fn=pendingChange;pendingChange=null;
+  var fn=pendingChange,af=pendingAfter;pendingChange=null;pendingAfter=null;
   fn(target);$('dChange').close();afterTTChange();
-  toast('Neue Planversion ab '+fmtD(nm)+' angelegt.');
+  if(af)af();else toast('Neue Planversion ab '+fmtD(nm)+' angelegt.');
 };
 $('chAll').onclick=function(){
   if(!pendingChange)return;
-  var fn=pendingChange;pendingChange=null;
+  var fn=pendingChange,af=pendingAfter;pendingChange=null;pendingAfter=null;
   fn(editVer());$('dChange').close();afterTTChange();
+  if(af)af();
 };
 $('dChange').addEventListener('close',function(){pendingChange=null});
 $('fLesson').addEventListener('submit',function(ev){
@@ -1588,16 +1754,20 @@ $('fLesson').addEventListener('submit',function(ev){
   var custom=$('lCustom').checked,cs=$('lCs').value,ce=$('lCe').value;
   if(custom&&(!cs||!ce||ce<=cs)){toast('Bei der abweichenden Uhrzeit muss das Ende nach dem Beginn liegen.');return}
   var span=+$('lSpan').value||1,wk=$('lWk').value,d=ttEdit.day,sl=ttEdit.slot,editId=ttEdit.id,room=$('lRoom').value.trim();
+  var extra=editId?[]:Array.prototype.filter.call($('lDays').children,function(x){return x.getAttribute('aria-pressed')==='true'}).map(function(x){return +x.dataset.ld});
+  var days=[d].concat(extra.filter(function(x){return x!==d}));
   $('dLesson').close();
   withChoice(function(ver){
     var replaced=[];
-    ver.lessons=ver.lessons.filter(function(o){
-      if(o.id===editId)return false;
-      if(o.day!==d)return true;
-      if(o.slot<sl+span&&sl<o.slot+o.span&&(o.wk==='ab'||wk==='ab'||o.wk===wk)){replaced.push(o.title);return false}
-      return true;
+    days.forEach(function(dd,idx){
+      ver.lessons=ver.lessons.filter(function(o){
+        if(idx===0&&o.id===editId)return false;
+        if(o.day!==dd)return true;
+        if(o.slot<sl+span&&sl<o.slot+o.span&&(o.wk==='ab'||wk==='ab'||o.wk===wk)){replaced.push(o.title);return false}
+        return true;
+      });
+      ver.lessons.push(Object.assign({id:(idx===0&&editId)?editId:newId(),day:dd,slot:sl,span:span,title:title,room:room,wk:wk},custom?{cs:cs,ce:ce}:{}));
     });
-    ver.lessons.push(Object.assign({id:editId||newId(),day:d,slot:sl,span:span,title:title,room:room,wk:wk},custom?{cs:cs,ce:ce}:{}));
     if(!ver.from)ver.from=dInput(monday(new Date()));
     if(!ver.setupEnd)ver.setupEnd=Date.now()+864e5;
     if(replaced.length)setTimeout(function(){toast('Ersetzt: '+replaced.join(', ')+'.')},0);
@@ -1607,9 +1777,11 @@ $('lCustom').addEventListener('change',function(){$('lTimes').hidden=!this.check
 $('lSpan').addEventListener('change',function(){if(!$('lCustom').checked)lDefaultTimes()});
 $('lDel').onclick=function(){
   if(!ttEdit||!ttEdit.id)return;
-  var delId=ttEdit.id;
+  var delId=ttEdit.id,snapL=JSON.stringify(S.tt);
   $('dLesson').close();
-  withChoice(function(ver){ver.lessons=ver.lessons.filter(function(o){return o.id!==delId})});
+  withChoice(function(ver){ver.lessons=ver.lessons.filter(function(o){return o.id!==delId})},function(){
+    toast('Stunde gelöscht.',function(){S.tt=Object.assign(defaultTT(),JSON.parse(snapL));migrateTT();ttVerId=null;afterTTChange()});
+  });
 };
 
 function slotRow(i,s,e,pause,num){
@@ -1664,8 +1836,10 @@ function renderBreaks(){
 }
 $('brList').addEventListener('click',function(ev){
   var b=ev.target.closest('[data-brdel]');if(!b)return;
+  var br0=S.tt.breaks.find(function(x){return x.id===b.dataset.brdel});
   S.tt.breaks=S.tt.breaks.filter(function(x){return x.id!==b.dataset.brdel});
   genTT();save();renderBreaks();renderTT();
+  if(br0)toast('Ferien-Eintrag entfernt.',function(){S.tt.breaks.push(br0);genTT();save();renderBreaks();renderTT()});
 });
 $('brAdd').onclick=function(){
   var f=$('brFrom').value,t=$('brTo').value;
@@ -1693,8 +1867,11 @@ $('viewTT').addEventListener('click',function(ev){
     var ve=editVer();
     if(ttDelArm!==ve.id){ttDelArm=ve.id;renderTT();return}
     ttDelArm=null;
+    var snapV=JSON.stringify(S.tt);
     S.tt.versions=S.tt.versions.filter(function(x){return x.id!==ve.id});
-    ttVerId=null;afterTTChange();toast('Planversion gelöscht.');return;
+    ttVerId=null;afterTTChange();
+    toast('Planversion gelöscht.',function(){S.tt=Object.assign(defaultTT(),JSON.parse(snapV));migrateTT();ttVerId=null;afterTTChange()});
+    return;
   }
   if(ttDelArm){ttDelArm=null}
   if(t.closest('#ttVerNew')){
@@ -1723,6 +1900,37 @@ $('dtCancel').onclick=function(){
   else{S.cancelled[k]=1;msg='Als ausgefallen markiert. Die Stunde zählt nicht als Unterricht.'}
   save();$('dDetail').close();render();toast(msg);
 };
+
+/* ---------- Update-Hinweis ---------- */
+var uArmed=false,uBackedUp=false;
+function showUpdate(){
+  uArmed=false;uBackedUp=false;
+  $('uBackup').textContent='1. Backup erstellen';
+  $('uGo').textContent='2. Update jetzt ausführen';
+  $('uState').textContent=S.lastBackup?'Letzte Sicherung: '+fmtStamp(S.lastBackup)+'.':'Es gibt noch keine Sicherung.';
+  openDlg($('dUpdate'));
+}
+window.lkShowUpdate=showUpdate;
+$('uBackup').onclick=function(){
+  browserSave(stampName(),JSON.stringify(buildBackup()));
+  S.lastBackup=Date.now();save();backupUi();
+  uBackedUp=true;uArmed=false;
+  $('uBackup').textContent='✓ Backup erstellt';
+  $('uGo').textContent='2. Update jetzt ausführen';
+  $('uState').textContent='Sicherung heruntergeladen ('+fmtStamp(S.lastBackup)+'). Lege die Datei an einem sicheren Ort ab.';
+};
+$('uGo').onclick=function(){
+  var recent=S.lastBackup&&Date.now()-S.lastBackup<864e5;
+  if(!uBackedUp&&!recent&&!uArmed){
+    uArmed=true;
+    $('uGo').textContent='Ohne Backup fortfahren?';
+    $('uState').textContent='Es gibt kein Backup von heute. Erstelle erst eins, oder tippe nochmal, um trotzdem zu aktualisieren.';
+    return;
+  }
+  $('uGo').disabled=true;$('uGo').textContent='Aktualisiere …';
+  if(window.lkApplyUpdate)window.lkApplyUpdate();else location.reload();
+};
+$('uLater').onclick=function(){$('dUpdate').close()};
 
 /* ---------- Start ---------- */
 var had=load();
@@ -1753,6 +1961,33 @@ requestPersist();
 setInterval(function(){if(!document.hidden&&S.tab==='cal')render()},120000);
 })();
 </script>
-<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
+<script>
+(function(){
+  if(!('serviceWorker' in navigator))return;
+  var reg=null,applying=false,shown=false;
+  function offer(){
+    if(shown||!reg||!reg.waiting||!navigator.serviceWorker.controller)return;
+    shown=true;if(window.lkShowUpdate)window.lkShowUpdate();
+  }
+  window.lkApplyUpdate=function(){
+    applying=true;
+    if(reg&&reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});else location.reload();
+  };
+  navigator.serviceWorker.addEventListener('controllerchange',function(){if(applying)location.reload()});
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').then(function(r){
+      reg=r;offer();
+      r.addEventListener('updatefound',function(){
+        var nw=r.installing;if(!nw)return;
+        nw.addEventListener('statechange',function(){if(nw.state==='installed')offer()});
+      });
+      var chk=function(){r.update().catch(function(){})};
+      chk();
+      document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});
+      setInterval(chk,30*60*1000);
+    }).catch(function(){});
+  });
+})();
+</script>
 </body>
 </html>
