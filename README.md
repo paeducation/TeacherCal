@@ -11,6 +11,7 @@ Alle Dateien gehören in den **Hauptordner** des Repositories (keine Unterordner
 |---|---|
 | `index.html` | die ganze App (das Logo im Kopf ist darin eingebettet) |
 | `manifest.webmanifest` | damit die Seite als App auf den Home-Bildschirm kann |
+| `sw.js` | macht die App offline nutzbar (Service Worker) |
 | `apple-touch-icon.png`, `icon-512.png` | Symbole |
 | `bricolage-grotesque.woff2` | Schrift, lokal eingebunden (keine Google-Fonts-Abfrage) |
 | `FONT-LICENSE.txt` | Lizenz der Schrift (SIL Open Font License) |
@@ -40,11 +41,13 @@ Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zu
 - **Daten gehören zur Adresse:** Der Browser speichert die Daten pro Webadresse. Wechselst du die Adresse (z. B. anderer Repository-Name), sind die Daten dort nicht vorhanden. Zum Umziehen: in der alten Version **Sichern**, in der neuen **Aus Sicherung wiederherstellen**.
 - **Browserdaten löschen = Daten weg.** Darum regelmäßig **Sichern** (der Punkt am Button erinnert nach einer Woche).
 - **Kalender-Abos:** Der automatische Abruf von Abo-Links funktioniert nicht, weil die Server (z. B. IServ, WebUntis) den Abruf durch Webseiten nicht erlauben. Kalender werden als `.ics`-Datei importiert („+ Kalender“) und lassen sich pro Kalender neu importieren.
-- **Kein Offline-Modus:** Die Seite braucht beim Öffnen eine Internetverbindung.
+- **Offline:** Nach dem ersten Aufruf öffnet die App auch ohne Internet. Ist eine Verbindung da, lädt sie immer die neueste Version. Dafür muss `sw.js` mit hochgeladen sein.
+- **Dauerhafter Speicher:** Die App bittet den Browser beim Start, die Daten dauerhaft zu speichern. Ob er zusagt, steht im Fenster „Sichern“. Eine Sicherung bleibt trotzdem wichtig.
+- **Stundenplan-Versionen:** Änderungen am Stundenplan kannst du „ab nächster Woche“ als neue Version anlegen. Dann bleiben vergangene Wochen und ihre erfasste Unterrichtszeit unverändert.
 
 ## Aktualisieren
 
-Eine neue `index.html` im Repository hochladen und mit dem gleichen Dateinamen ersetzen. Die Daten im Browser bleiben erhalten.
+Eine neue `index.html` (und falls vorhanden `sw.js`) im Repository hochladen und mit dem gleichen Dateinamen ersetzen. Die Daten im Browser bleiben erhalten.
 
 ## Hinweis zur Arbeitszeit
 
