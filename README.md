@@ -62,3 +62,10 @@ Eine neue `index.html` **und** die neue `sw.js` im Repository hochladen und mit 
 ## Hinweis zur Arbeitszeit
 
 Die App erfasst Zeiten, sie prüft nichts rechtlich (z. B. Höchstarbeitszeit, Pausen). Die Voreinstellung von 41 Wochenstunden entspricht der regelmäßigen Arbeitszeit in NRW. Das Wochenziel lässt sich im Tab „Arbeitszeit“ anpassen.
+
+## Wenn ein Update nicht ankommt
+
+1. Warte nach dem Hochladen zwei bis fünf Minuten. Unter **Actions** muss der Lauf „pages build and deployment“ einen grünen Haken haben.
+2. Schließe die App ganz und öffne sie neu. Dann erscheint „Update verfügbar!“.
+3. Zeigt die Startadresse noch die alte Version, öffne einmal die Adresse mit `/index.html` am Ende. Danach erscheint das Pop-up. Die Daten sind dieselben.
+4. Mach vor jedem Update ein Backup. Lösche keine Website-Daten, ohne vorher gesichert zu haben.

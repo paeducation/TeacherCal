@@ -535,7 +535,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-10-05 19:45';
+var APP_VERSION='2026-10-05 20:30';
 var S={ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -1975,7 +1975,7 @@ setInterval(function(){if(!document.hidden&&S.tab==='cal')render()},120000);
   };
   navigator.serviceWorker.addEventListener('controllerchange',function(){if(applying)location.reload()});
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('sw.js').then(function(r){
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(r){
       reg=r;offer();
       r.addEventListener('updatefound',function(){
         var nw=r.installing;if(!nw)return;
