@@ -65,7 +65,8 @@ Die App erfasst Zeiten, sie prüft nichts rechtlich (z. B. Höchstarbeitszeit, P
 
 ## Wenn ein Update nicht ankommt
 
-1. Warte nach dem Hochladen zwei bis fünf Minuten. Unter **Actions** muss der Lauf „pages build and deployment“ einen grünen Haken haben.
-2. Schließe die App ganz und öffne sie neu. Dann erscheint „Update verfügbar!“.
-3. Zeigt die Startadresse noch die alte Version, öffne einmal die Adresse mit `/index.html` am Ende. Danach erscheint das Pop-up. Die Daten sind dieselben.
-4. Mach vor jedem Update ein Backup. Lösche keine Website-Daten, ohne vorher gesichert zu haben.
+1. **Veröffentlichung prüfen:** Unter **Actions** muss der Lauf „pages build and deployment“ einen grünen Haken haben. Steht dort ein Fehler (z. B. „The job was not acquired by Runner“), liegt es bei GitHub. Öffne den Lauf und tippe auf **Re-run all jobs**, oder prüfe githubstatus.com.
+2. Warte nach dem Hochladen zwei bis fünf Minuten.
+3. Schließe die App ganz und öffne sie neu. Dann erscheint „Update verfügbar!“. Erst „Backup erstellen“, dann „Update jetzt ausführen“.
+4. Zeigt die Startadresse noch die alte Version, öffne einmal die Adresse mit `/index.html` am Ende.
+5. Lösche keine Website-Daten, ohne vorher gesichert zu haben.
