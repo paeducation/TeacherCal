@@ -535,7 +535,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-10-06 06:41';
+var APP_VERSION='2026-10-06 07:00';
 var S={ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -1644,7 +1644,7 @@ function renderTT(){
   }
   tt.slots.forEach(function(x,i){if(x.pause)g+='<div class="ttp" style="grid-column:2 / span 5;grid-row:'+(i+2)+'">Pause · '+x.s+'–'+x.e+'</div>'});
   vis.forEach(function(l){
-    g+='<button type="button" class="ttc" data-ttl="'+l.id+'" style="--c:'+ttColor(l.title)+';grid-column:'+(l.day+2)+';grid-row:'+(l.slot+2)+' / span '+l.span+'"><b>'+esc(l.title)+'</b>'+(l.room?'<small>'+esc(l.room)+'</small>':'')+((l.cs&&l.ce)?'<small>'+l.cs+'–'+l.ce+'</small>':'')+(l.wk!=='ab'?'<i class="wkb">'+l.wk+'</i>':'')+'</button>';
+    g+='<button type="button" class="ttc" data-ttl="'+l.id+'" style="--c:'+ttColor(l.title)+';grid-column:'+(l.day+2)+';grid-row:'+(l.slot+2)+' / span '+l.span+'"><b>'+esc(l.title)+'</b>'+(l.room?'<small>'+esc(l.room)+'</small>':'')+((l.cs&&l.ce)?'<small>'+l.cs+'–'+l.ce+'</small>':'')+'</button>';
   });
   g+='</div>';
   h+='<div class="wcard"><div class="scroll">'+g+'</div></div>';
