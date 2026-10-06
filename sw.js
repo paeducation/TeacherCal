@@ -1,10 +1,10 @@
-/* Service Worker des Lehrerkalenders (Version 2026-10-06 07:00).
+/* Service Worker des Lehrerkalenders (Version 2026-10-06 11:42).
    - Die App läuft aus dem Zwischenspeicher, auch ohne Internet.
    - Eine neue Version wird im Hintergrund geladen und erst nach Bestätigung aktiviert
      (Pop-up "Update verfügbar!"). So kannst du vorher ein Backup erstellen.
    - Startadresse und index.html liefern immer dieselbe App.
    - Es werden nur Dateien dieser Seite gespeichert, keine Kalenderdaten. */
-const VERSION = '2026-10-06 07:00';
+const VERSION = '2026-10-06 11:42';
 const CACHE = 'lehrerkalender-' + VERSION;
 const EXTRA = ['manifest.webmanifest', 'apple-touch-icon.png', 'icon-512.png', 'bricolage-grotesque.woff2'];
 

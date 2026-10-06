@@ -36,6 +36,10 @@ Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zu
 - **Zeit erfassen:** In „Arbeitszeit“ auf eine Kategorie tippen startet die Zeit sofort, ein zweiter Tipp stoppt sie.
 - **Stundenplan:** Beim Eintragen helfen Vorschläge aus bisherigen Stunden und die Auswahl „Dieselbe Stunde auch an“ (Mo bis Fr).
 - **Rückgängig:** Nach dem Löschen erscheint kurz „Rückgängig“.
+- **Serientermine:** Beim Termin unter „Wiederholen“ wählen: jede Woche, alle 2 Wochen, nur A- oder nur B-Wochen, optional mit Enddatum. Einzelne Termine der Serie lassen sich über die Details löschen.
+- **Jetzt und gleich:** Oben im Kalender zeigt eine Karte die laufende und die nächste Stunde (mit Raum und Restzeit).
+- **Wochenprognose:** In „Arbeitszeit“ schätzt eine Karte für die aktuelle und kommende Wochen die Gesamtzeit aus erfasster Zeit, geplantem Unterricht, Terminen mit Kategorie und deinem Durchschnitt der letzten Wochen. Es ist eine Schätzung.
+- **Verschlüsselte Sicherung:** Im Fenster „Sichern“ kannst du die Sicherungsdatei mit einem Passwort verschlüsseln (AES-256, direkt im Browser). Ohne das Passwort lässt sie sich nicht öffnen, auch nicht von mir oder GitHub.
 - **Ansicht:** Anzahl der Tage und das Stundenraster stellst du über „Ansicht“ ein.
 
 ## Datenschutz
@@ -43,7 +47,7 @@ Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zu
 - **Keine Daten auf GitHub:** Termine, Stundenplan und Arbeitszeiten werden nur im Browser (localStorage) gespeichert. Die Seite stellt keine Verbindung zu anderen Servern her. Das ist zusätzlich in `index.html` per Content-Security-Policy (`connect-src 'none'`) festgelegt.
 - **Keine externen Schriften, Skripte oder Statistiken.**
 - **Aber:** Wie bei jeder Webseite sieht der Hoster (hier GitHub) beim Aufruf die IP-Adresse. Wenn das für den dienstlichen Einsatz relevant ist, bitte vorher mit der oder dem Datenschutzbeauftragten der Schule klären. Alternativ kann die Schul-IT die Dateien auf einem eigenen Server bereitstellen.
-- **Sicherungsdatei:** Sie enthält alle Termine und kann personenbezogene Daten enthalten. Nur an einem dafür freigegebenen Ort speichern.
+- **Sicherungsdatei:** Sie enthält alle Termine und kann personenbezogene Daten enthalten. Verschlüssele sie mit Passwort und speichere sie nur an einem dafür freigegebenen Ort.
 
 ## Wichtig zu wissen
 

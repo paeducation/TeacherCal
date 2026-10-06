@@ -196,6 +196,15 @@ button{cursor:pointer}
 .col{cursor:pointer}
 #eMore summary{cursor:pointer;color:var(--muted);font-size:14px;padding:6px 0}
 .ttsum{cursor:pointer;font-weight:600;font-size:14px;padding:10px 0 2px;color:var(--ink)}
+.nowcard{padding:10px 14px;border-left:4px solid var(--c);margin-bottom:12px}
+.nowrow{display:grid;grid-template-columns:64px 1fr;gap:8px;align-items:baseline;padding:3px 0}
+.nowl{font-size:13px;font-weight:700;color:var(--muted)}
+.nowrow b{font-size:16px}
+.nowrow small{display:block;color:var(--muted);font-size:13px}
+.fcrow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:14px;border-bottom:1px solid var(--line)}
+.fcrow:last-of-type{border-bottom:0}
+.fcrow b{font-variant-numeric:tabular-nums}
+#viewWork details summary{cursor:pointer;color:var(--muted);font-size:14px;padding:8px 0 2px}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -268,6 +277,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
     <button class="btn primary" id="btnAdd">+ Termin</button>
     <span class="spacer"></span><span class="bkslot"><button class="btn" id="btnBackup">Sichern<i class="bdot" id="bDot" hidden></i></button></span>
   </header>
+  <div id="nowCard"></div>
   <div id="obCard"></div>
 
   <div class="bar">
@@ -340,6 +350,16 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
     <label>Ende <input type="time" id="eEnd" value="16:00"></label>
   </div>
   <label id="eCatWrap">Als Arbeitszeit zählen <select id="eCat"></select></label>
+  <label id="eRepWrap">Wiederholen
+    <select id="eRep">
+      <option value="">Nie</option>
+      <option value="weekly">Jede Woche</option>
+      <option value="biweekly">Alle 2 Wochen</option>
+      <option value="A">Nur A-Wochen</option>
+      <option value="B">Nur B-Wochen</option>
+    </select>
+  </label>
+  <label id="eUntilWrap" hidden>Wiederholen bis (optional) <input type="date" id="eUntil"></label>
   <details id="eMore">
     <summary>Mehr Optionen (Ort, Farbe)</summary>
     <label style="margin-top:8px">Ort (optional) <input type="text" id="eLoc"></label>
@@ -365,12 +385,28 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <p class="muted" id="uState"></p>
 </div></dialog>
 
+<dialog id="dPass"><form class="dlg" id="fPass" method="dialog">
+  <h2 id="pTitle">Passwort</h2>
+  <p class="hint" id="pHint"></p>
+  <label>Passwort <input type="password" id="pw1" autocomplete="off"></label>
+  <label id="pw2Wrap">Passwort wiederholen <input type="password" id="pw2" autocomplete="off"></label>
+  <p id="pErr" style="margin:0;color:#D64550;font-size:14px"></p>
+  <div class="actions">
+    <button class="btn" type="button" id="pCancel">Abbrechen</button>
+    <button class="btn primary" type="submit">OK</button>
+  </div>
+</form></dialog>
+
 <dialog id="dBackup"><div class="dlg">
   <h2>Sicherung</h2>
   <p class="hint" id="bInfo"></p>
   <p class="muted" id="bPersist"></p>
   <p class="muted" id="bVer"></p>
   <p class="muted">Die Datei enthält deine Termine, Stundenplan und Arbeitszeiten, möglicherweise mit personenbezogenen Daten. Speichere sie nur an einem Ort, der dafür freigegeben ist.</p>
+  <div id="bEncWrap">
+    <label class="inline"><input type="checkbox" id="bEnc"> Mit Passwort verschlüsseln (empfohlen)</label>
+    <p class="muted" style="margin:4px 0 0">Die Datei ist dann ohne Passwort unlesbar. Merke dir das Passwort gut: Ohne Passwort lässt sich die Sicherung nicht mehr öffnen.</p>
+  </div>
   <div class="actions">
     <button class="btn" id="bCopy" hidden>Als Text kopieren</button>
     <button class="btn primary" id="bSave">Sicherung speichern</button>
@@ -511,6 +547,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <div class="actions">
     <button class="btn" id="dtCancel" hidden>Diese Stunde entfällt</button>
     <button class="btn" id="dtCopy" hidden>Als eigenen Termin kopieren</button>
+    <button class="btn" id="dtSkip" hidden>Nur diesen Termin löschen</button>
     <button class="btn" id="dtEdit" hidden>Bearbeiten</button>
     <button class="btn" id="dtDelete" hidden>Termin löschen</button>
     <button class="btn" data-close>Schließen</button>
@@ -535,8 +572,8 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-10-06 07:00';
-var S={ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
+var APP_VERSION='2026-10-06 11:42';
+var S={encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
 /* ---------- Datum ---------- */
@@ -559,10 +596,10 @@ function $(id){return document.getElementById(id)}
 
 /* ---------- Speicher ---------- */
 function load(){
-  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};return true}}catch(e){}
+  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};S.encBackup=!!o.encBackup;if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};return true}}catch(e){}
   return false;
 }
-function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,tt:S.tt}))}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,encBackup:S.encBackup,tt:S.tt}))}catch(e){}}
 function ensureLocal(){
   if(!S.sources.some(function(s){return s.id==='local'})){
     S.sources.unshift({id:'local',name:'Meine Termine',type:'local',color:'#64748B',visible:true,events:[],url:''});
@@ -650,10 +687,28 @@ function demoSources(){
 /* ---------- Render ---------- */
 function visibleSources(){return S.sources.filter(function(s){return s.visible})}
 var dupes=0;
+var REPS={weekly:'Jede Woche',biweekly:'Alle 2 Wochen',A:'Nur A-Wochen',B:'Nur B-Wochen'};
+function occOn(e,date){
+  var r=e.rep;if(!r)return null;
+  var d0=sod(new Date(e.start)),d=sod(date),ds=dInput(d);
+  if(d<d0)return null;
+  if(r.until&&ds>r.until)return null;
+  if(r.skip&&r.skip.indexOf(ds)>=0)return null;
+  var diff=Math.round((d-d0)/864e5);
+  if(r.type==='weekly'){if(diff%7!==0)return null}
+  else if(r.type==='biweekly'){if(diff%14!==0)return null}
+  else if(r.type==='A'||r.type==='B'){
+    if(d.getDay()!==d0.getDay()||wkType(d)!==r.type)return null;
+  }else return null;
+  var m=new Date(e.start),st=new Date(d.getFullYear(),d.getMonth(),d.getDate(),m.getHours(),m.getMinutes()).getTime();
+  return {start:st,end:st+(e.end-e.start)};
+}
 function dayData(date,seen){
   var ds=date.getTime(),de=addDays(date,1).getTime(),all=[],timed=[];
   visibleSources().forEach(function(src){
-    src.events.forEach(function(e){
+    src.events.forEach(function(e0){
+      var e=e0;
+      if(e0.rep){var o=occOn(e0,date);if(!o)return;e=Object.assign({},e0,{start:o.start,end:o.end,od:dInput(date)})}
       if(!(e.start<de&&e.end>ds))return;
       if(S.hidden[src.id+'|'+e.title+'|'+e.start])return;
       var key=e.title.toLowerCase()+'|'+e.start+'|'+ds;
@@ -730,7 +785,7 @@ function render(){
 
   var anyAll=data.some(function(dd){return dd.all.length});
   var allRow=anyAll?'<div class="row" style="'+style+'"><div class="tc ad"></div>'+data.map(function(dd){
-    return '<div class="ad">'+dd.all.map(function(it){return '<button class="chip" style="--c:'+(it.e.color||it.src.color)+'" data-ev="'+it.e.id+'" data-src="'+it.src.id+'">'+esc(it.e.title)+'</button>'}).join('')+'</div>';
+    return '<div class="ad">'+dd.all.map(function(it){return '<button class="chip" style="--c:'+(it.e.color||it.src.color)+'" data-ev="'+it.e.id+'" data-src="'+it.src.id+'" data-od="'+(it.e.od||'')+'">'+esc(it.e.title)+'</button>'}).join('')+'</div>';
   }).join('')+'</div>':'';
 
   var hl='';for(i=h0;i<=h1;i++){hl+=i>h0?'<span class="hl" style="top:'+((i-h0)*HOUR)+'px">'+i+'</span>':'<span class="hl" style="top:3px;transform:none">'+i+'</span>'}
@@ -740,7 +795,7 @@ function render(){
       var top=(it.s/60-h0)*HOUR,ht=Math.max(18,(it.en-it.s)/60*HOUR-2);
       var w=100/it.cols,l=it.col*w;
       var showTime=ht>=34, showLoc=ht>=48&&it.e.loc;
-      return '<button class="ev'+(it.e.done?' done':'')+(isCx(it.src,it.e)?' cx':'')+'" style="--c:'+(it.e.color||it.src.color)+';top:'+top+'px;height:'+ht+'px;left:calc('+l+'% + 1px);width:calc('+w+'% - 2px)" data-ev="'+it.e.id+'" data-src="'+it.src.id+'"><b>'+esc(it.e.title)+'</b>'+(showTime?'<small>'+(isCx(it.src,it.e)?'entfällt · ':'')+hm(it.e.start)+'–'+hm(it.e.end)+(showLoc?' · '+esc(it.e.loc):'')+'</small>':'')+'</button>';
+      return '<button class="ev'+(it.e.done?' done':'')+(isCx(it.src,it.e)?' cx':'')+'" style="--c:'+(it.e.color||it.src.color)+';top:'+top+'px;height:'+ht+'px;left:calc('+l+'% + 1px);width:calc('+w+'% - 2px)" data-ev="'+it.e.id+'" data-src="'+it.src.id+'" data-od="'+(it.e.od||'')+'"><b>'+esc(it.e.title)+'</b>'+(showTime?'<small>'+(isCx(it.src,it.e)?'entfällt · ':'')+hm(it.e.start)+'–'+hm(it.e.end)+(showLoc?' · '+esc(it.e.loc):'')+'</small>':'')+'</button>';
     }).join('');
     var now='';
     if(isT){var nm=new Date();var m=nm.getHours()*60+nm.getMinutes();if(m>=h0*60&&m<=h1*60)now='<div class="now" style="top:'+((m/60-h0)*HOUR)+'px"></div>'}
@@ -755,6 +810,7 @@ function render(){
   $('cal').innerHTML=head+allRow+body+plus;
   placeBackupBtn();
   renderOb();
+  renderNow();
 
   var total=data.reduce(function(a,dd){return a+dd.all.length+dd.timed.length},0);
   var foot=[];
@@ -764,6 +820,39 @@ function render(){
   foot.push('Tipp: Auf eine freie Stelle tippen legt dort einen Termin an.');
   var fo=$('foot');fo.textContent=foot.join(' ');
 }
+
+/* ---------- Jetzt und gleich ---------- */
+function minTxt(ms){var m=Math.max(1,Math.round(ms/60000));return m<60?m+' Min':Math.floor(m/60)+':'+pad(m%60)+' Std'}
+function renderNow(){
+  var el=$('nowCard');if(!el)return;
+  if(S.tab!=='cal'){el.innerHTML='';return}
+  var now=new Date(),nowMs=now.getTime(),today=sod(now);
+  var vs=viewStart();
+  if(today<vs||today>=addDays(vs,7)){el.innerHTML='';return}
+  var keep=dupes,dd=dayData(today,{});dupes=keep;
+  var list=dd.timed.filter(function(it){return !isCx(it.src,it.e)}).sort(function(a,b){return a.e.start-b.e.start});
+  if(!list.length){el.innerHTML='';return}
+  var cur=list.filter(function(it){return it.e.start<=nowMs&&it.e.end>nowMs}).sort(function(a,b){return a.e.end-b.e.end})[0];
+  var next=list.filter(function(it){return it.e.start>nowMs})[0];
+  var rows='',col='var(--wkB)';
+  if(cur){
+    col=cur.e.color||cur.src.color;
+    rows+='<div class="nowrow"><span class="nowl">Jetzt</span><div><b>'+esc(cur.e.title)+'</b><small>'+(cur.e.loc?esc(cur.e.loc)+' · ':'')+'bis '+hm(cur.e.end)+' · noch '+minTxt(cur.e.end-nowMs)+'</small></div></div>';
+  }else{
+    var nm=now.getHours()*60+now.getMinutes();
+    var ps=S.tt.slots.filter(function(x){return x.pause&&toMin(x.s)<=nm&&nm<toMin(x.e)})[0];
+    if(ps)rows+='<div class="nowrow"><span class="nowl">Jetzt</span><div><b>Pause</b><small>bis '+ps.e+' Uhr</small></div></div>';
+  }
+  if(next){
+    if(!cur)col=next.e.color||next.src.color;
+    rows+='<div class="nowrow"><span class="nowl">Danach</span><div><b>'+esc(next.e.title)+'</b><small>'+(next.e.loc?esc(next.e.loc)+' · ':'')+'um '+hm(next.e.start)+' · in '+minTxt(next.e.start-nowMs)+'</small></div></div>';
+  }else if(!cur){
+    rows+='<div class="nowrow"><span class="nowl">Heute</span><div><b>Alles erledigt</b><small>Keine weiteren Termine</small></div></div>';
+  }
+  if(!rows){el.innerHTML='';return}
+  el.innerHTML='<div class="wcard nowcard" style="--c:'+col+'">'+rows+'</div>';
+}
+setInterval(function(){if(!document.hidden&&S.tab==='cal')renderNow()},30000);
 
 /* ---------- Erste Schritte ---------- */
 function renderOb(){
@@ -845,7 +934,7 @@ document.addEventListener('click',function(ev){
   var hp=t.closest('[data-hplus]');
   if(hp){S.hEnd=+hp.dataset.hplus>0?Math.min(24,lastH1+1):Math.max(20,Math.min(S.hEnd,lastH1)-1);save();render();return}
   var e=t.closest('[data-ev]');
-  if(e){showDetail(e.dataset.src,e.dataset.ev);return}
+  if(e){showDetail(e.dataset.src,e.dataset.ev,e.dataset.od);return}
   if(t.closest('[data-edittt]')){var dsx=$('dSources');if(dsx.open)dsx.close();setTab('tt');return}
   var ri=t.closest('[data-reimp]');
   if(ri){reTarget=ri.dataset.reimp;$('reFile').value='';$('reFile').click();return}
@@ -954,7 +1043,7 @@ function openNewEvent(o){
   o=o||{};
   evEdit=null;$('eHead').textContent='Neuer Termin';
   $('fEvent').reset();buildEventColors('');buildEventCats('');buildPresets();
-  $('eCatWrap').hidden=false;$('ePresetWrap').hidden=false;$('eMore').open=false;
+  $('eCatWrap').hidden=false;$('ePresetWrap').hidden=false;$('eMore').open=false;$('eUntilWrap').hidden=true;
   var now=new Date(),h=now.getHours()+1;if(h<7||h>19)h=15;
   $('eDate').value=o.date||dInput(sod(now));
   $('eStart').value=o.start||pad(h)+':00';
@@ -972,6 +1061,7 @@ $('cal').addEventListener('click',function(ev){
   var en=Math.min(min+60,24*60-1);
   openNewEvent({date:col.dataset.d,start:pad(Math.floor(min/60))+':'+pad(min%60),end:pad(Math.floor(en/60))+':'+pad(en%60)});
 });
+$('eRep').onchange=function(){$('eUntilWrap').hidden=!this.value};
 $('eAll').onchange=function(){$('eTimes').hidden=this.checked;$('eCatWrap').hidden=this.checked};
 $('fEvent').addEventListener('submit',function(ev){
   ev.preventDefault();
@@ -989,13 +1079,14 @@ $('fEvent').addEventListener('submit',function(ev){
     ee.title=$('eTitle').value.trim();ee.loc=$('eLoc').value.trim();ee.start=start;ee.end=end;ee.allDay=all;
     var ec0=(document.querySelector('input[name=ec]:checked')||{}).value||'';if(ec0)ee.color=ec0;else delete ee.color;
     if(!all&&$('eCat').value)ee.cat=$('eCat').value;else delete ee.cat;
+    if($('eRep').value)ee.rep={type:$('eRep').value,until:$('eUntil').value||null,skip:(ee.rep&&ee.rep.skip)||[]};else delete ee.rep;
     evEdit=null;save();$('dEvent').close();
     S.anchor=new Date(p[0],p[1]-1,p[2]);render();
     return;
   }
   var loc=S.sources.find(function(x){return x.id==='local'});
   var ec1=(document.querySelector('input[name=ec]:checked')||{}).value||'';
-  loc.events.push(Object.assign({id:newId(),title:$('eTitle').value.trim(),loc:$('eLoc').value.trim(),start:start,end:end,allDay:all},ec1?{color:ec1}:{},(!all&&$('eCat').value)?{cat:$('eCat').value}:{}));
+  loc.events.push(Object.assign({id:newId(),title:$('eTitle').value.trim(),loc:$('eLoc').value.trim(),start:start,end:end,allDay:all},ec1?{color:ec1}:{},(!all&&$('eCat').value)?{cat:$('eCat').value}:{},$('eRep').value?{rep:{type:$('eRep').value,until:$('eUntil').value||null,skip:[]}}:{}));
   loc.visible=true;save();$('dEvent').close();render();
   S.anchor=new Date(p[0],p[1]-1,p[2]);render();
 });
@@ -1005,16 +1096,21 @@ function dInput(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getD
 
 /* Details */
 var detailRef=null;
-function showDetail(srcId,evId){
+function showDetail(srcId,evId,od){
   var s=S.sources.find(function(x){return x.id===srcId});if(!s)return;
   var e=s.events.find(function(x){return x.id===evId});if(!e)return;
-  detailRef={s:s,e:e};
+  detailRef={s:s,e:e,od:od||''};
+  var ev=e;
+  if(e.rep&&od){var oc=occOn(e,parseDate(od));if(oc)ev=Object.assign({},e,{start:oc.start,end:oc.end})}
   $('dtTitle').textContent=e.title;
-  var when=e.allDay?new Date(e.start).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+' (ganztägig)':
-    new Date(e.start).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+', '+hm(e.start)+'–'+hm(e.end)+' Uhr';
+  var when=ev.allDay?new Date(ev.start).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+' (ganztägig)':
+    new Date(ev.start).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+', '+hm(ev.start)+'–'+hm(ev.end)+' Uhr';
   $('dtBody').innerHTML='<p style="margin:0 0 6px">'+esc(when)+'</p>'+(e.loc?'<p style="margin:0 0 6px">Ort: '+esc(e.loc)+'</p>':'')+
     '<p class="meta" style="margin:0;color:var(--muted)"><i class="dot" style="--c:'+(e.color||s.color)+';display:inline-block;margin-right:6px"></i>'+esc(s.name)+'</p>';
   $('dtDelete').hidden=s.id!=='local';
+  $('dtDelete').textContent=e.rep?'Ganze Serie löschen':'Termin löschen';
+  $('dtSkip').hidden=!(s.id==='local'&&e.rep&&od);
+  if(s.id==='local'&&e.rep)$('dtBody').innerHTML+='<p style="margin:8px 0 0">Serie: <b>'+esc(REPS[e.rep.type]||'')+'</b>'+(e.rep.until?', bis '+esc(fmtD(e.rep.until)):'')+'</p>';
   $('dtCopy').hidden=(s.id==='local');
   if(s.id==='local'&&e.cat)$('dtBody').innerHTML+='<p style="margin:8px 0 0">Zählt nach dem Ende als Arbeitszeit: <b>'+esc(catOf(e.cat).name)+'</b></p>';
   var canCx=(s.type==='stundenplan'||s.type==='webuntis');
@@ -1022,6 +1118,7 @@ function showDetail(srcId,evId){
   $('dtCancel').textContent=S.cancelled[cxKey(s,e)]?'Ausfall rückgängig machen':'Als ausgefallen markieren';
   if(canCx&&isCx(s,e))$('dtBody').innerHTML+='<p style="margin:8px 0 0"><b>Diese Stunde fällt aus</b>'+(e.cancelled?' (von WebUntis gemeldet)':'')+' und zählt nicht als Unterricht.</p>';
   $('dtEdit').hidden=s.id!=='local';
+  $('dtEdit').textContent=e.rep?'Serie bearbeiten':'Bearbeiten';
   openDlg($('dDetail'));
 }
 $('reFile').addEventListener('change',async function(){
@@ -1061,14 +1158,22 @@ $('dtEdit').onclick=function(){
   $('eLoc').value=e.loc||'';
   buildEventColors(e.color||'');buildEventCats(e.cat||'');$('eCatWrap').hidden=!!e.allDay;
   $('ePresetWrap').hidden=true;$('eMore').open=!!(e.loc||e.color);
+  $('eRep').value=e.rep?e.rep.type:'';$('eUntil').value=(e.rep&&e.rep.until)||'';$('eUntilWrap').hidden=!e.rep;
   openDlg($('dEvent'));
+};
+$('dtSkip').onclick=function(){
+  if(!detailRef||!detailRef.od)return;
+  var m=detailRef.e,od=detailRef.od;
+  m.rep.skip=(m.rep.skip||[]).concat(od);
+  save();$('dDetail').close();render();
+  toast('Dieser Termin entfällt.',function(){m.rep.skip=m.rep.skip.filter(function(x){return x!==od});save();render()});
 };
 $('dtDelete').onclick=function(){
   if(!detailRef)return;
   var s0=detailRef.s,e0=detailRef.e;
   s0.events=s0.events.filter(function(x){return x.id!==e0.id});
   save();$('dDetail').close();render();
-  toast('Termin gelöscht.',function(){s0.events.push(e0);save();render()});
+  toast(e0.rep?'Serie gelöscht.':'Termin gelöscht.',function(){s0.events.push(e0);save();render()});
 };
 
 /* ---------- Arbeitszeit ---------- */
@@ -1141,8 +1246,17 @@ function autoEvents(ds,de){
   var now=Date.now(),out=[],loc=S.sources.find(function(x){return x.id==='local'});
   if(!loc)return out;
   loc.events.forEach(function(e){
-    if(!e.cat||e.allDay||e.start<ds||e.start>=de||e.end>now)return;
-    out.push({id:'ev'+e.id,cat:e.cat,start:e.start,end:e.end,note:e.title,virtual:true,srcName:'Termin'});
+    if(!e.cat||e.allDay)return;
+    if(!e.rep){
+      if(e.start<ds||e.start>=de||e.end>now)return;
+      out.push({id:'ev'+e.id,cat:e.cat,start:e.start,end:e.end,note:e.title,virtual:true,srcName:'Termin'});
+      return;
+    }
+    for(var d=sod(new Date(ds));d.getTime()<de;d=addDays(d,1)){
+      var o=occOn(e,d);
+      if(!o||o.start<ds||o.start>=de||o.end>now)continue;
+      out.push({id:'ev'+e.id+'-'+dInput(d),cat:e.cat,start:o.start,end:o.end,note:e.title,virtual:true,srcName:'Termin'});
+    }
   });
   return out;
 }
@@ -1203,6 +1317,8 @@ function renderWork(){
       var stack=S.work.cats.filter(function(c){return d[c.id]}).map(function(c){return '<span style="display:block;height:'+Math.max(2,d[c.id]/maxD*110)+'px;background:'+c.color+'"></span>'}).join('');
       return '<div class="bcol"><span>'+(dsum[i]?fmtM(dsum[i]):'')+'</span><div class="barzone"><div class="stack">'+stack+'</div></div><b'+(isT?' class="t"':'')+'>'+DAYN[i]+'</b></div>';
     }).join('')+'</div></div>';
+
+  if(mon.getTime()>=monday(new Date()).getTime())h+=forecastHtml(mon);
 
   // Kategorien
   var cats=S.work.cats.filter(function(c){return st.per[c.id]});
@@ -1319,9 +1435,70 @@ function setTab(t){
   Array.prototype.forEach.call($('tabs').querySelectorAll('button'),function(b){b.setAttribute('aria-pressed',String(b.dataset.tab===t))});
   updateChip();
     if(t==='work')renderWork();else if(t==='tt')renderTT();else render();
+  renderNow();
 }
 $('tabs').addEventListener('click',function(ev){var b=ev.target.closest('[data-tab]');if(b)setTab(b.dataset.tab)});
 $('runChip').onclick=function(){setTab('work')};
+/* Wochenprognose */
+function plannedWork(from,de){
+  var out={lessons:0,events:0},seen={};
+  var srcs=S.sources.filter(function(x){return x.type==='webuntis'}).concat(S.sources.filter(function(x){return x.type==='stundenplan'}));
+  srcs.forEach(function(src){
+    src.events.forEach(function(e){
+      if(e.allDay||e.start>=de||e.end<=from||isCx(src,e))return;
+      var k=e.title.toLowerCase()+'|'+e.start,ks='s|'+e.start;
+      if(seen[k]||seen[ks])return;seen[k]=1;seen[ks]=1;
+      out.lessons+=(e.end-e.start)/60000;
+    });
+  });
+  var loc=S.sources.find(function(x){return x.id==='local'});
+  if(loc)loc.events.forEach(function(e){
+    if(!e.cat||e.allDay)return;
+    if(!e.rep){if(e.start<de&&e.end>from)out.events+=(e.end-e.start)/60000;return}
+    for(var d=sod(new Date(from));d.getTime()<de;d=addDays(d,1)){
+      var o=occOn(e,d);
+      if(o&&o.start<de&&o.end>from)out.events+=(o.end-o.start)/60000;
+    }
+  });
+  return out;
+}
+function manualWeekMin(m){
+  var ds=m.getTime(),de=addDays(m,7).getTime(),t=0;
+  S.work.entries.forEach(function(e){if(e.start>=ds&&e.start<de)t+=(e.end-e.start)/60000});
+  return t;
+}
+function forecastFor(mon){
+  var now=new Date(),thisMon=monday(now),cur=mon.getTime()===thisMon.getTime();
+  var st=weekStats(mon),from=cur?now.getTime():mon.getTime(),de=addDays(mon,7).getTime();
+  var pl=plannedWork(from,de);
+  var sums=[];
+  for(var k=1;k<=4;k++){var v=manualWeekMin(addDays(thisMon,-7*k));if(v>0)sums.push(v)}
+  var avg=sums.length?sums.reduce(function(a,b){return a+b},0)/sums.length:0;
+  var frac=1;
+  if(cur){
+    var ti=(now.getDay()+6)%7,nm=now.getHours()*60+now.getMinutes();
+    frac=ti<=4?((4-ti)+Math.max(0,Math.min(1,(17*60-nm)/(9*60))))/5:0;
+  }
+  var exp=avg*frac;
+  return {booked:st.total,lessons:pl.lessons,events:pl.events,exp:exp,avg:avg,weeks:sums.length,frac:frac,total:st.total+pl.lessons+pl.events+exp};
+}
+function forecastHtml(mon){
+  var f=forecastFor(mon),soll=S.work.soll*60,diff=f.total-soll;
+  var state=diff<=0?['Im Ziel','var(--wkB)']:(diff<=soll*0.1?['Knapp über dem Ziel','#E9742B']:['Deutlich über dem Ziel','#D64550']);
+  var cur=mon.getTime()===monday(new Date()).getTime();
+  var pct=Math.min(100,soll?f.total/soll*100:0);
+  var row=function(a,b){return '<div class="fcrow"><span>'+a+'</span><b>'+b+'</b></div>'};
+  return '<div class="wcard"><div class="sumrow"><div><div class="sumbig">'+hmm(f.total)+' Std</div><div class="muted">Prognose für '+(cur?'diese Woche':'KW '+isoWeek(mon).w)+'</div></div>'+
+    '<div class="muted right" style="color:'+state[1]+';font-weight:700">'+state[0]+(diff>0?' (+'+hmm(diff)+' Std)':'')+'</div></div>'+
+    '<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(pct)+'"><i style="width:'+pct+'%;background:'+state[1]+'"></i></div>'+
+    '<details><summary>So wird gerechnet</summary>'+
+    row('Bisher erfasst',hmm(f.booked)+' Std')+
+    row('Geplanter Unterricht (Rest der Woche)',hmm(f.lessons)+' Std')+
+    row('Geplante Termine mit Kategorie',hmm(f.events)+' Std')+
+    row(f.weeks?'Erfahrungswert (Ø '+f.weeks+(f.weeks===1?' Woche':' Wochen')+', anteilig)':'Erfahrungswert',f.weeks?hmm(f.exp)+' Std':'noch keine Vergleichswochen')+
+    '<p class="muted" style="margin:8px 0 0">Der Erfahrungswert ist der Durchschnitt deiner von Hand erfassten Zeiten (Korrektur, Vorbereitung …) aus den letzten bis zu vier Wochen. Es ist eine Schätzung, kein Versprechen.</p></details></div>';
+}
+
 /* Statistik */
 var stMode='week',stAnchor=new Date();
 function stRange(a,mode){
@@ -1455,6 +1632,7 @@ function backupUi(){
   $('bSave').hidden=false;
   $('bCopy').hidden=true;
   $('bVer').textContent='Version: '+APP_VERSION;
+  $('bEnc').checked=!!S.encBackup;$('bEncWrap').hidden=!canCrypto();
 }
 function browserSave(name,text){
   var blob=new Blob([text],{type:'application/json'}),a=document.createElement('a');
@@ -1480,10 +1658,12 @@ $('btnBackup').onclick=function(){
   backupUi();openDlg($('dBackup'));
 };
 $('bSave').onclick=async function(){
-  if(!dl){browserSave(stampName(),JSON.stringify(buildBackup()));S.lastBackup=Date.now();save();backupUi();toast('Sicherung heruntergeladen. Lege sie an einem sicheren, freigegebenen Ort ab.');return}
+  var pk=await packBackup();if(!pk)return;
+  var tip=pk.enc?'Verschlüsselte Sicherung gespeichert. Das Passwort brauchst du zum Wiederherstellen.':'Sicherung gespeichert. Lege sie an einem sicheren, freigegebenen Ort ab.';
+  if(!dl){browserSave(pk.name,pk.text);S.lastBackup=Date.now();save();backupUi();toast(tip);return}
   try{
-    var r=await dl.save({filename:stampName(),data:JSON.stringify(buildBackup())});
-    if(r&&r.status==='saved'){S.lastBackup=Date.now();save();backupUi();toast('Sicherung gespeichert. Lege sie an einem sicheren, freigegebenen Ort ab.')}
+    var r=await dl.save({filename:pk.name,data:pk.text});
+    if(r&&r.status==='saved'){S.lastBackup=Date.now();save();backupUi();toast(tip)}
   }catch(e){
     if(e&&e.code==='declined')return;
     toast('Speichern hat nicht geklappt'+(e&&e.code==='rate_limited'?'. Bitte gleich nochmal versuchen.':'.'));
@@ -1497,12 +1677,23 @@ $('bCopy').onclick=async function(){
 $('bFile').addEventListener('change',async function(){
   var f=this.files[0];if(!f)return;
   try{
-    var o=JSON.parse(await f.text());
+    var o=JSON.parse(await f.text()),wasEnc=false;
+    if(o&&o.app==='lehrerkalender'&&o.encrypted){
+      if(!canCrypto()){toast('Verschlüsselte Sicherungen lassen sich in diesem Browser nicht öffnen.');return}
+      var err='',plain=null;
+      for(var tries=0;tries<5&&!plain;tries++){
+        var pw=await askPassword({title:'Sicherung entschlüsseln',confirm:false,error:err});
+        if(pw===null){pendingRestore=null;$('bRestore').hidden=true;toast('Wiederherstellen abgebrochen.');return}
+        try{plain=await decryptBackup(o,pw)}catch(e2){err='Das Passwort stimmt nicht oder die Datei ist beschädigt.'}
+      }
+      if(!plain){pendingRestore=null;$('bRestore').hidden=true;toast('Entschlüsseln hat nicht geklappt.');return}
+      o=plain;wasEnc=true;
+    }
     if(!o||o.app!=='lehrerkalender'||!Array.isArray(o.sources))throw new Error('format');
     pendingRestore=o;
     var ne=o.sources.reduce(function(a,x){return a+(x.events?x.events.length:0)},0);
     var nw=(o.work&&o.work.entries)?o.work.entries.length:0;
-    $('bSum').textContent='Sicherung vom '+(o.exportedAt?fmtStamp(Date.parse(o.exportedAt)):'unbekanntem Datum')+': '+o.sources.length+' Kalender, '+ne+' Termine, '+nw+' Zeiteinträge. Beim Wiederherstellen werden die aktuellen Daten ersetzt.';
+    $('bSum').textContent=(wasEnc?'Verschlüsselte ':'')+'Sicherung vom '+(o.exportedAt?fmtStamp(Date.parse(o.exportedAt)):'unbekanntem Datum')+': '+o.sources.length+' Kalender, '+ne+' Termine, '+nw+' Zeiteinträge. Beim Wiederherstellen werden die aktuellen Daten ersetzt.';
     $('bRestore').hidden=false;
   }catch(e){
     pendingRestore=null;$('bRestore').hidden=true;
@@ -1898,6 +2089,59 @@ $('dtCancel').onclick=function(){
   save();$('dDetail').close();render();toast(msg);
 };
 
+/* ---------- Verschlüsselte Sicherung ---------- */
+function canCrypto(){return !!(window.crypto&&window.crypto.subtle&&window.TextEncoder)}
+function b64(buf){var a=new Uint8Array(buf),t='';for(var i=0;i<a.length;i++)t+=String.fromCharCode(a[i]);return btoa(t)}
+function unb64(t){var x=atob(t),a=new Uint8Array(x.length);for(var i=0;i<x.length;i++)a[i]=x.charCodeAt(i);return a}
+async function deriveKey(pw,salt,iter){
+  var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function encryptBackup(obj,pw){
+  var salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),iter=250000;
+  var key=await deriveKey(pw,salt,iter);
+  var ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,new TextEncoder().encode(JSON.stringify(obj)));
+  return {app:'lehrerkalender',version:1,encrypted:true,kdf:'PBKDF2-SHA256',iter:iter,salt:b64(salt),iv:b64(iv),data:b64(ct)};
+}
+async function decryptBackup(o,pw){
+  var key=await deriveKey(pw,unb64(o.salt),o.iter||250000);
+  var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(o.iv)},key,unb64(o.data));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+var passResolve=null;
+function askPassword(opt){
+  return new Promise(function(resolve){
+    passResolve=resolve;
+    $('pTitle').textContent=opt.title||'Passwort';
+    $('pHint').textContent=opt.confirm?'Mindestens 8 Zeichen. Wenn du das Passwort vergisst, kann niemand die Sicherung öffnen, auch ich nicht.':'Gib das Passwort ein, mit dem die Sicherung verschlüsselt wurde.';
+    $('pw1').value='';$('pw2').value='';$('pw2Wrap').hidden=!opt.confirm;
+    $('pErr').textContent=opt.error||'';
+    $('fPass').dataset.confirm=opt.confirm?'1':'';
+    openDlg($('dPass'));
+    setTimeout(function(){try{$('pw1').focus()}catch(e){}},50);
+  });
+}
+$('fPass').addEventListener('submit',function(ev){
+  ev.preventDefault();
+  var a=$('pw1').value,conf=$('fPass').dataset.confirm==='1';
+  if(conf){
+    if(a.length<8){$('pErr').textContent='Das Passwort braucht mindestens 8 Zeichen.';return}
+    if(a!==$('pw2').value){$('pErr').textContent='Die beiden Passwörter sind nicht gleich.';return}
+  }else if(!a){$('pErr').textContent='Bitte das Passwort eingeben.';return}
+  var r=passResolve;passResolve=null;$('dPass').close();if(r)r(a);
+});
+$('pCancel').onclick=function(){$('dPass').close()};
+$('dPass').addEventListener('close',function(){var r=passResolve;passResolve=null;if(r)r(null);$('pw1').value='';$('pw2').value=''});
+async function packBackup(){
+  var obj=buildBackup();
+  if(!(S.encBackup&&canCrypto()))return {name:stampName(),text:JSON.stringify(obj),enc:false};
+  var pw=await askPassword({title:'Sicherung verschlüsseln',confirm:true});
+  if(pw===null)return null;
+  var enc=await encryptBackup(obj,pw);
+  return {name:stampName().replace('.json','-verschluesselt.json'),text:JSON.stringify(enc),enc:true};
+}
+$('bEnc').onchange=function(){S.encBackup=this.checked;save()};
+
 /* ---------- Update-Hinweis ---------- */
 var uArmed=false,uBackedUp=false;
 function showUpdate(){
@@ -1908,13 +2152,14 @@ function showUpdate(){
   openDlg($('dUpdate'));
 }
 window.lkShowUpdate=showUpdate;
-$('uBackup').onclick=function(){
-  browserSave(stampName(),JSON.stringify(buildBackup()));
+$('uBackup').onclick=async function(){
+  var pk=await packBackup();if(!pk)return;
+  browserSave(pk.name,pk.text);
   S.lastBackup=Date.now();save();backupUi();
   uBackedUp=true;uArmed=false;
   $('uBackup').textContent='✓ Backup erstellt';
   $('uGo').textContent='2. Update jetzt ausführen';
-  $('uState').textContent='Sicherung heruntergeladen ('+fmtStamp(S.lastBackup)+'). Lege die Datei an einem sicheren Ort ab.';
+  $('uState').textContent='Sicherung heruntergeladen ('+fmtStamp(S.lastBackup)+(pk.enc?', verschlüsselt':'')+'). Lege die Datei an einem sicheren Ort ab.';
 };
 $('uGo').onclick=function(){
   var recent=S.lastBackup&&Date.now()-S.lastBackup<864e5;
