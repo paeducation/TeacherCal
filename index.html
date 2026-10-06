@@ -535,7 +535,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-10-05 20:35';
+var APP_VERSION='2026-10-06 06:41';
 var S={ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -769,7 +769,6 @@ function render(){
 function renderOb(){
   var el=$('obCard');if(!el)return;
   var s1=ttAnyLessons()||S.sources.some(function(x){return x.type==='webuntis'&&x.events.length});
-  var s2=S.sources.some(function(x){return x.id!=='local'&&x.id!=='stundenplan'});
   var s3=!!(S.ob.goal||S.work.sollUser);
   if(S.ob.hide||(s1&&s3)){el.innerHTML='';return}
   function row(n,done,title,sub,act,label){
@@ -778,8 +777,7 @@ function renderOb(){
   }
   el.innerHTML='<div class="wcard obcard"><div class="obhead"><b>Erste Schritte</b><button type="button" class="x" id="obX" aria-label="Ausblenden">×</button></div><ol class="obsteps">'+
     row(1,s1,'Stundenplan eintragen','Einmal einrichten, danach zählt der Unterricht automatisch.','tt','Einrichten')+
-    row(2,s2,'Kalender importieren','Optional: IServ, WebUntis oder Google als .ics-Datei.','cal','Importieren')+
-    row(3,s3,'Wochenziel prüfen','Voreingestellt: '+S.work.soll+' Stunden pro Woche.','goal','Prüfen')+'</ol></div>';
+    row(2,s3,'Wochenziel prüfen','Voreingestellt: '+S.work.soll+' Stunden pro Woche.','goal','Prüfen')+'</ol></div>';
 }
 $('obCard').addEventListener('click',function(ev){
   var b=ev.target.closest('[data-ob]');
@@ -787,7 +785,6 @@ $('obCard').addEventListener('click',function(ev){
   if(!b)return;
   var a=b.dataset.ob;
   if(a==='tt')setTab('tt');
-  else if(a==='cal')$('btnNewSrc').onclick();
   else if(a==='goal'){S.ob.goal=true;save();setTab('work')}
 });
 

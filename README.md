@@ -31,7 +31,7 @@ Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zu
 
 ## Bedienung in Kürze
 
-- **Erste Schritte:** Beim ersten Start zeigt eine Karte oben die drei Schritte (Stundenplan eintragen, Kalender importieren, Wochenziel prüfen). Mit × blendest du sie aus.
+- **Erste Schritte:** Beim ersten Start zeigt eine Karte oben die zwei Schritte (Stundenplan eintragen, Wochenziel prüfen). Mit × blendest du sie aus.
 - **Termin anlegen:** Auf eine freie Stelle im Kalender tippen. Tag und Uhrzeit sind schon eingetragen, die Schnellauswahl (Konferenz, Elternabend …) setzt Titel und Arbeitszeit-Kategorie.
 - **Zeit erfassen:** In „Arbeitszeit“ auf eine Kategorie tippen startet die Zeit sofort, ein zweiter Tipp stoppt sie.
 - **Stundenplan:** Beim Eintragen helfen Vorschläge aus bisherigen Stunden und die Auswahl „Dieselbe Stunde auch an“ (Mo bis Fr).
