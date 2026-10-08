@@ -32,7 +32,7 @@ Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zu
 ## Bedienung in Kürze
 
 - **Erste Schritte:** Beim ersten Start zeigt eine Karte oben die zwei Schritte (Stundenplan eintragen, Wochenziel prüfen). Mit × blendest du sie aus.
-- **Termin anlegen:** Auf eine freie Stelle im Kalender tippen. Tag und Uhrzeit sind schon eingetragen, die Schnellauswahl (Konferenz, Elternabend …) setzt Titel und Arbeitszeit-Kategorie.
+- **Termin anlegen:** Auf eine freie Stelle im Kalender tippen. Tag und Uhrzeit sind schon eingetragen, die Schnellauswahl (Konferenz, Elternabend, Aufsicht, Vertretung, Elterngespräch, Besprechung) setzt Titel, Dauer und Arbeitszeit-Kategorie. „Vertretung“ ist auch eine eigene Kategorie in der Arbeitszeit.
 - **Zeit erfassen:** In „Arbeitszeit“ auf eine Kategorie tippen startet die Zeit sofort, ein zweiter Tipp stoppt sie.
 - **Stundenplan:** Beim Eintragen helfen Vorschläge aus bisherigen Stunden und die Auswahl „Dieselbe Stunde auch an“ (Mo bis Fr).
 - **Rückgängig:** Nach dem Löschen erscheint kurz „Rückgängig“.
@@ -40,6 +40,13 @@ Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zu
 - **Jetzt und gleich:** Oben im Kalender zeigt eine Karte die laufende und die nächste Stunde (mit Raum und Restzeit).
 - **Wochenprognose:** In „Arbeitszeit“ schätzt eine Karte für die aktuelle und kommende Wochen die Gesamtzeit aus erfasster Zeit, geplantem Unterricht, Terminen mit Kategorie und deinem Durchschnitt der letzten Wochen. Es ist eine Schätzung.
 - **Verschlüsselte Sicherung:** Im Fenster „Sichern“ kannst du die Sicherungsdatei mit einem Passwort verschlüsseln (AES-256, direkt im Browser). Ohne das Passwort lässt sie sich nicht öffnen, auch nicht von mir oder GitHub.
+- **Abwesenheiten:** Ein Tipp auf den Wochentag im Kalender (z. B. „Mi 7.10.“) öffnet die Auswahl, alternativ geht es über „Arbeitszeit“ (Knopf „Abwesenheit“). Es gibt nur zwei Arten: „Krank“ (rotes Kreuz neben dem Wochentag) und „Beweglicher Ferientag“ (Palme). An diesen Tagen entfällt der Unterricht (durchgestrichen), und das Tagesziel der Arbeitszeit ist 0. Alles andere zählt als Arbeitszeit.
+- **Dienstliche Veranstaltungen:** Klassen-, Stufen- und Studienfahrten, Fortbildungen und andere mehrtägige dienstliche Veranstaltungen trägst du ein: über den letzten Punkt der Schnellauswahl im Fenster „Neuer Termin“ („Dienstl. Veranstaltung (mehrtägig)“). Dort verwaltest du sie auch. Der Unterricht dieser Tage entfällt, und pro Tag zählt eine Pauschale als Arbeitszeit (vorbelegt: 10 Stunden, änderbar).
+- **NRW-Schulferien:** Die offiziellen Ferientermine des Landes (bis Sommer 2030, Stand Oktober 2026, ohne Gewähr) sind eingebaut und werden automatisch berücksichtigt: Der Unterricht entfällt, im Kalender steht der Name der Ferien, und das Ziel der Arbeitszeit ist 0 (abschaltbar in den Einstellungen). Unter „Ferien eintragen“ kannst du die Automatik ausschalten und eigene freie Zeiträume ergänzen. Für spätere Jahre kommen die Termine mit einer neuen Version der App.
+- **Feiertage:** Die gesetzlichen Feiertage in NRW werden automatisch berechnet, im Kalender angezeigt und vom Ziel abgezogen.
+- **Teilzeit:** Unter „Einstellungen“ (in der Arbeitszeit) legst du Wochenziel und Arbeitstage fest. Ziele, Prognose und Statistik rechnen nur mit diesen Tagen.
+- **Zeitkonto:** Wenn du unter „Einstellungen“ ein Startdatum einträgst, zeigt die App dein Plus oder Minus seit diesem Tag. Feiertage, Ferien (falls eingestellt) und Abwesenheiten zählen als frei. Das ist eine Orientierung und keine rechtlich geprüfte Berechnung.
+- **Export:** In der Statistik (Woche oder Monat) gibt es „Als PDF“ (Arbeitszeitnachweis mit Tagesliste, Zusammenfassung und Unterschriftszeile) und „Als CSV“ für Excel. Beides wird lokal im Browser erzeugt.
 - **Ansicht:** Anzahl der Tage und das Stundenraster stellst du über „Ansicht“ ein.
 
 ## Datenschutz
