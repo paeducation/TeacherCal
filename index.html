@@ -217,6 +217,13 @@ button{cursor:pointer}
 #ePresets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 #ePresets .cat{min-height:32px;padding:4px 4px;font-size:12.5px;gap:0;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:22px}
 #ePresets .cat[data-etrip]{grid-column:1/-1}
+#dShield{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;border:0;border-radius:0;padding:0;overflow:hidden;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);cursor:pointer;color:var(--ink)}
+#dShield[open]{display:flex;align-items:center;justify-content:center}
+#dShield::backdrop{background:transparent}
+.shieldbox{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;pointer-events:none;padding:20px}
+.shieldbox b{font-size:20px}
+.shieldbox span{color:var(--muted);font-size:14px}
+.shieldbtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:0 2px 10px var(--shadow);z-index:40;display:grid;place-items:center;padding:0}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -309,10 +316,25 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <div id="bkHold" hidden></div>
 </div>
 
+<dialog id="dShield" aria-label="Sichtschutz aktiv"><div class="shieldbox"><b>Sichtschutz aktiv</b><span>Tippen, um den Inhalt wieder anzuzeigen</span></div></dialog>
+<button type="button" class="shieldbtn" id="shieldBtn" aria-label="Sichtschutz einschalten" title="Inhalt sofort verdecken"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/></svg></button>
+
 <dialog id="dView"><div class="dlg">
   <h2>Ansicht</h2>
   <label>Angezeigte Tage pro Woche <select id="daysSel" aria-label="Anzahl angezeigter Tage"></select></label>
   <label class="inline"><input type="checkbox" id="rasterChk"> Stundenraster mit Stundennummern einblenden</label>
+  <hr>
+  <label>Sichtschutz automatisch nach
+    <select id="shIdle">
+      <option value="0">Aus</option>
+      <option value="30">30 Sekunden ohne Bedienung</option>
+      <option value="60">1 Minute ohne Bedienung</option>
+      <option value="120">2 Minuten ohne Bedienung</option>
+      <option value="300">5 Minuten ohne Bedienung</option>
+    </select>
+  </label>
+  <label class="inline"><input type="checkbox" id="shRet"> Auch beim Zurückkehren in die App verdecken</label>
+  <p class="muted" style="margin:0">Die App kann nicht erkennen, ob ein Beamer oder AirPlay verbunden ist. Tippe auf das Auge unten rechts, um den Inhalt sofort zu verdecken.</p>
   <div class="actions"><button class="btn primary" type="button" data-close>Fertig</button></div>
 </div></dialog>
 
@@ -635,8 +657,8 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-10-08 20:19';
-var S={trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
+var APP_VERSION='2026-10-09 15:03';
+var S={shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
 /* ---------- Datum ---------- */
@@ -659,10 +681,10 @@ function $(id){return document.getElementById(id)}
 
 /* ---------- Speicher ---------- */
 function load(){
-  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};S.encBackup=!!o.encBackup;if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};if(o.work)['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];return true}}catch(e){}
+  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};S.encBackup=!!o.encBackup;if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};if(o.work)['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};return true}}catch(e){}
   return false;
 }
-function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,encBackup:S.encBackup,abs:S.abs,trips:S.trips,tt:S.tt}))}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,encBackup:S.encBackup,abs:S.abs,trips:S.trips,shield:S.shield,tt:S.tt}))}catch(e){}}
 function ensureLocal(){
   if(!S.sources.some(function(s){return s.id==='local'})){
     S.sources.unshift({id:'local',name:'Meine Termine',type:'local',color:'#64748B',visible:true,events:[],url:''});
@@ -1032,7 +1054,7 @@ document.addEventListener('change',function(ev){
 
 var rzT=null;
 window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(S.tab==='cal')render()},150)});
-$('viewBtn').onclick=function(){openDlg($('dView'))};
+$('viewBtn').onclick=function(){$('shIdle').value=String(S.shield.idle||0);$('shRet').checked=!!S.shield.onReturn;openDlg($('dView'))};
 $('rasterChk').onchange=function(){S.raster=this.checked;save();render()};
 $('daysSel').addEventListener('change',function(){S.n=+this.value;save();render()});
 $('prev').onclick=function(){var st=viewStart();S.anchor=addDays(st,-7);render()};
@@ -2125,7 +2147,8 @@ function buildBackup(){
     cancelled:S.cancelled,
     work:{entries:S.work.entries,soll:S.work.soll,sollUser:S.work.sollUser,autoUnt:S.work.autoUnt,cats:S.work.cats,days:S.work.days,ferienFrei:S.work.ferienFrei,zkFrom:S.work.zkFrom,name:S.work.name,vertretungAdded:S.work.vertretungAdded},
     abs:S.abs,
-    trips:S.trips
+    trips:S.trips,
+    shield:S.shield
   };
 }
 function stampName(){var d=new Date();return 'lehrerkalender-sicherung-'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'.json'}
@@ -2182,7 +2205,7 @@ $('bGo').onclick=function(){
   S.n=o.n>=1&&o.n<=7?o.n:5;
   S.sources=o.sources;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:true,goal:true};S.tt=o.tt?Object.assign(defaultTT(),o.tt):defaultTT();migrateTT();
   S.work={entries:(o.work&&o.work.entries)||[],running:null,soll:(o.work&&o.work.soll)||41,sollUser:!!(o.work&&o.work.sollUser),autoUnt:!(o.work&&o.work.autoUnt===false),cats:(o.work&&o.work.cats)||null};
-  ['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work&&o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];
+  ['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work&&o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};
   ensureLocal();genTT();ensureCats();if(!S.work.sollUser&&S.work.soll===40)S.work.soll=41;save();pendingRestore=null;
   $('dBackup').close();
   S.anchor=new Date();S.wAnchor=new Date();
@@ -2627,6 +2650,25 @@ async function packBackup(){
   return {name:stampName().replace('.json','-verschluesselt.json'),text:JSON.stringify(enc),enc:true};
 }
 $('bEnc').onchange=function(){S.encBackup=this.checked;save()};
+
+/* ---------- Sichtschutz ---------- */
+var lastAct=Date.now();
+['pointerdown','keydown','touchstart','scroll','wheel'].forEach(function(n){document.addEventListener(n,function(){lastAct=Date.now()},{passive:true,capture:true})});
+function shieldOn(){var d=$('dShield');if(!d.open)openDlg(d)}
+function shieldOff(){var d=$('dShield');if(d.open)d.close();lastAct=Date.now()}
+$('shieldBtn').onclick=shieldOn;
+$('dShield').addEventListener('click',shieldOff);
+$('dShield').addEventListener('cancel',function(ev){ev.preventDefault()});
+setInterval(function(){
+  var n=S.shield&&S.shield.idle;
+  if(!n||$('dShield').open)return;
+  if(Date.now()-lastAct>=n*1000)shieldOn();
+},1000);
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&S.shield&&S.shield.onReturn)shieldOn();
+});
+$('shIdle').onchange=function(){S.shield.idle=+this.value;save()};
+$('shRet').onchange=function(){S.shield.onReturn=this.checked;save()};
 
 /* ---------- Update-Hinweis ---------- */
 var uArmed=false,uBackedUp=false;
