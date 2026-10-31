@@ -224,6 +224,13 @@ button{cursor:pointer}
 .shieldbox b{font-size:20px}
 .shieldbox span{color:var(--muted);font-size:14px}
 .shieldbtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:0 2px 10px var(--shadow);z-index:40;display:grid;place-items:center;padding:0}
+#prev,#next,#wPrev,#wNext{display:none!important}
+@media (hover:hover) and (pointer:fine){#prev,#next,#wPrev,#wNext{display:inline-block!important}}
+@keyframes slN{from{opacity:.35;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes slP{from{opacity:.35;transform:translateX(-36px)}to{opacity:1;transform:none}}
+.sl-n{animation:slN .22s ease-out}
+.sl-p{animation:slP .22s ease-out}
+@media (prefers-reduced-motion:reduce){.sl-n,.sl-p{animation:none}}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -657,7 +664,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-10-09 15:03';
+var APP_VERSION='2026-10-31 21:41';
 var S={shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -909,7 +916,7 @@ function render(){
   if(!visibleSources().length)foot.push('Alle Kalender sind ausgeblendet.');
   else if(!total)foot.push('Keine Termine in diesem Zeitraum.');
   if(dupes)foot.push(dupes+(dupes===1?' doppelter Termin':' doppelte Termine')+' aus mehreren Kalendern zusammengeführt.');
-  foot.push('Tipp: Auf eine freie Stelle tippen legt dort einen Termin an, ein Tipp auf den Wochentag trägt eine Abwesenheit ein.');
+  foot.push('Tipp: Nach links oder rechts wischen wechselt die Woche. Auf eine freie Stelle tippen legt dort einen Termin an, ein Tipp auf den Wochentag trägt eine Abwesenheit ein.');
   var fo=$('foot');fo.textContent=foot.join(' ');
 }
 
@@ -2650,6 +2657,44 @@ async function packBackup(){
   return {name:stampName().replace('.json','-verschluesselt.json'),text:JSON.stringify(enc),enc:true};
 }
 $('bEnc').onchange=function(){S.encBackup=this.checked;save()};
+
+/* ---------- Wischen zwischen den Wochen ---------- */
+function slideAnim(el,dir){
+  if(!el)return;
+  el.classList.remove('sl-n','sl-p');void el.offsetWidth;
+  el.classList.add(dir>0?'sl-n':'sl-p');
+  setTimeout(function(){el.classList.remove('sl-n','sl-p')},300);
+}
+function weekShift(dir){
+  if(S.tab==='cal'){S.anchor=addDays(viewStart(),7*dir);render();slideAnim($('cal'),dir)}
+  else if(S.tab==='work'){S.wAnchor=addDays(wMon(),7*dir);renderWork();slideAnim($('viewWork'),dir)}
+}
+var swp=null;
+function swipeBind(el){
+  el.addEventListener('touchstart',function(e){
+    if(e.touches.length!==1){swp=null;return}
+    var t=e.touches[0],sc=e.target.closest&&e.target.closest('.scroll'),o=sc&&sc.scrollWidth>sc.clientWidth+2;
+    swp={x:t.clientX,y:t.clientY,t:Date.now(),tg:e.target,scr:!!o,atL:o?sc.scrollLeft<=1:true,atR:o?sc.scrollLeft+sc.clientWidth>=sc.scrollWidth-1:true};
+  },{passive:true});
+  el.addEventListener('touchcancel',function(){swp=null},{passive:true});
+  el.addEventListener('touchend',function(e){
+    if(!swp)return;
+    var g=swp;swp=null;
+    var t=e.changedTouches[0],dx=t.clientX-g.x,dy=t.clientY-g.y;
+    if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.8||Date.now()-g.t>700)return;
+    if(g.tg.closest&&g.tg.closest('input,select,textarea,details'))return;
+    if(g.scr){if(dx>0&&!g.atL)return;if(dx<0&&!g.atR)return}
+    weekShift(dx<0?1:-1);
+  },{passive:true});
+}
+swipeBind($('viewCal'));swipeBind($('viewWork'));
+document.addEventListener('keydown',function(e){
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+  if(document.querySelector('dialog[open]'))return;
+  var tg=e.target;if(tg&&tg.closest&&tg.closest('input,select,textarea'))return;
+  if(S.tab!=='cal'&&S.tab!=='work')return;
+  e.preventDefault();weekShift(e.key==='ArrowRight'?1:-1);
+});
 
 /* ---------- Sichtschutz ---------- */
 var lastAct=Date.now();

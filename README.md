@@ -32,6 +32,7 @@ Wichtig: Safari löscht Webseiten-Daten, die lange nicht genutzt wurden. Eine zu
 ## Bedienung in Kürze
 
 - **Erste Schritte:** Beim ersten Start zeigt eine Karte oben die zwei Schritte (Stundenplan eintragen, Wochenziel prüfen). Mit × blendest du sie aus.
+- **Woche wechseln:** Auf dem Handy wischst du im Kalender und in der Arbeitszeit nach links (nächste Woche) oder rechts (vorige Woche). Am Computer gibt es die Pfeile und die Pfeiltasten. Bei 6 oder 7 Tagen scrollst du erst das Raster, am Rand wechselt das Wischen die Woche.
 - **Termin anlegen:** Auf eine freie Stelle im Kalender tippen. Tag und Uhrzeit sind schon eingetragen, die Schnellauswahl (Konferenz, Elternabend, Aufsicht, Vertretung, Elterngespräch, Besprechung) setzt Titel, Dauer und Arbeitszeit-Kategorie. „Vertretung“ ist auch eine eigene Kategorie in der Arbeitszeit.
 - **Zeit erfassen:** In „Arbeitszeit“ auf eine Kategorie tippen startet die Zeit sofort, ein zweiter Tipp stoppt sie.
 - **Stundenplan:** Beim Eintragen helfen Vorschläge aus bisherigen Stunden und die Auswahl „Dieselbe Stunde auch an“ (Mo bis Fr).
