@@ -474,6 +474,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <datalist id="lTitles"></datalist>
   <div class="cats" id="lChips" style="margin-top:-4px"></div>
   <label id="lRoomWrap"><span id="lRoomLbl">Raum (optional)</span> <input type="text" id="lRoom" autocomplete="off"></label>
+  <label class="inline" id="lFullWrap"><input type="checkbox" id="lFull"> Ganztägig (durchgehend 8 bis 16 Uhr)</label>
   <div class="two">
     <label>Gilt in
       <select id="lWk">
@@ -671,7 +672,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-11-01 14:31';
+var APP_VERSION='2026-11-01 14:39';
 var S={shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -2351,6 +2352,7 @@ function renderTT(){
   tt.slots.forEach(function(x,i){
     if(!x.pause)return;
     for(var d2=0;d2<5;d2++){
+      if(vis.some(function(l){return l.full&&l.day===d2}))continue;
       var au=vis.find(function(l){return l.kind==='aufsicht'&&l.day===d2&&l.slot===i});
       if(au)g+='<button type="button" class="ttc ttpz" data-ttl="'+au.id+'" style="--c:'+(au.color||lessonDefaultColor('aufsicht'))+';grid-column:'+(d2+2)+';grid-row:'+(i+2)+'"><b>'+esc(au.title)+'</b>'+(au.room?'<small>'+esc(au.room)+'</small>':'')+'</button>';
       else g+='<button type="button" class="ttc empty ttpz" data-ttc="'+d2+','+i+'" style="grid-column:'+(d2+2)+';grid-row:'+(i+2)+'" aria-label="'+TTDAYS[d2]+', Pause '+x.s+' bis '+x.e+': Aufsicht eintragen">Pause</button>';
@@ -2453,10 +2455,20 @@ function openLesson(id,day,slot){
   buildDayChips(ttEdit.day);$('lDaysWrap').hidden=!!l;
   buildLessonColors(l&&l.color||'',pause?'aufsicht':'');
   $('lColorHint').hidden=pause;
-  $('lCustom').checked=!!(l&&l.cs&&l.ce);$('lTimes').hidden=!$('lCustom').checked;
-  if(l&&l.cs&&l.ce){$('lCs').value=l.cs;$('lCe').value=l.ce}else lDefaultTimes();
+  $('lCustom').checked=!!(l&&l.cs&&l.ce&&!l.full);$('lTimes').hidden=!$('lCustom').checked;
+  if(l&&l.cs&&l.ce&&!l.full){$('lCs').value=l.cs;$('lCe').value=l.ce}else lDefaultTimes();
+  $('lFull').checked=!!(l&&l.full);$('lFullWrap').hidden=pause;
+  if(l&&l.full)$('lCustom').checked=false;
+  applyFullUI();
   openDlg($('dLesson'));
 }
+function applyFullUI(){
+  var f=!!ttEdit&&!ttEdit.pause&&$('lFull').checked;
+  $('lSpanWrap').hidden=!!(ttEdit&&ttEdit.pause)||f;
+  $('lCustom').closest('label').hidden=f;
+  $('lTimes').hidden=f||!$('lCustom').checked;
+}
+$('lFull').addEventListener('change',applyFullUI);
 function afterTTChange(){genTT();save();renderTT()}
 function needsChoice(v){
   var today=dInput(new Date());
@@ -2491,9 +2503,10 @@ $('dChange').addEventListener('close',function(){pendingChange=null});
 $('fLesson').addEventListener('submit',function(ev){
   ev.preventDefault();
   var title=$('lTitle').value.trim();if(!title||!ttEdit)return;
-  var custom=$('lCustom').checked,cs=$('lCs').value,ce=$('lCe').value;
+  var full=!ttEdit.pause&&$('lFull').checked;
+  var custom=!full&&$('lCustom').checked,cs=$('lCs').value,ce=$('lCe').value;
   if(custom&&(!cs||!ce||ce<=cs)){toast('Bei der abweichenden Uhrzeit muss das Ende nach dem Beginn liegen.');return}
-  var pause=!!ttEdit.pause,span=pause?1:(+$('lSpan').value||1),wk=$('lWk').value,d=ttEdit.day,sl=ttEdit.slot,editId=ttEdit.id,room=$('lRoom').value.trim();
+  var pause=!!ttEdit.pause,span=pause?1:(full?S.tt.slots.length:(+$('lSpan').value||1)),wk=$('lWk').value,d=ttEdit.day,sl=full?0:ttEdit.slot,editId=ttEdit.id,room=$('lRoom').value.trim();
   var color=(document.querySelector('input[name=lc]:checked')||{}).value||'',propagate=!pause;
   var extra=editId?[]:Array.prototype.filter.call($('lDays').children,function(x){return x.getAttribute('aria-pressed')==='true'}).map(function(x){return +x.dataset.ld});
   var days=[d].concat(extra.filter(function(x){return x!==d}));
@@ -2507,7 +2520,7 @@ $('fLesson').addEventListener('submit',function(ev){
         if(o.slot<sl+span&&sl<o.slot+o.span&&(o.wk==='ab'||wk==='ab'||o.wk===wk)){replaced.push(o.title);return false}
         return true;
       });
-      ver.lessons.push(Object.assign({id:(idx===0&&editId)?editId:newId(),day:dd,slot:sl,span:span,title:title,room:room,wk:wk},color?{color:color}:{},pause?{kind:'aufsicht'}:{},custom?{cs:cs,ce:ce}:{}));
+      ver.lessons.push(Object.assign({id:(idx===0&&editId)?editId:newId(),day:dd,slot:sl,span:span,title:title,room:room,wk:wk},color?{color:color}:{},pause?{kind:'aufsicht'}:{},full?{full:true,cs:'08:00',ce:'16:00'}:(custom?{cs:cs,ce:ce}:{})));
     });
     if(propagate)ver.lessons.forEach(function(o){if(!o.kind&&normT(o.title)===normT(title)){if(color)o.color=color;else delete o.color}});
     if(!ver.from)ver.from=dInput(monday(new Date()));
@@ -2563,8 +2576,8 @@ $('fSlots').addEventListener('submit',function(ev){
   S.tt.slots=slots;
   var N=slots.length;
   S.tt.versions.forEach(function(v){
-    v.lessons=v.lessons.filter(function(l){return l.slot<N&&(l.kind==='aufsicht'?!!slots[l.slot].pause:!slots[l.slot].pause)});
-    v.lessons.forEach(function(l){l.span=l.kind==='aufsicht'?1:Math.max(1,Math.min(l.span,N-l.slot,runLen(l.slot)))});
+    v.lessons=v.lessons.filter(function(l){return l.full||(l.slot<N&&(l.kind==='aufsicht'?!!slots[l.slot].pause:!slots[l.slot].pause))});
+    v.lessons.forEach(function(l){if(l.full){l.slot=0;l.span=N}else l.span=l.kind==='aufsicht'?1:Math.max(1,Math.min(l.span,N-l.slot,runLen(l.slot)))});
   });
   genTT();save();$('dSlots').close();renderTT();
 });
