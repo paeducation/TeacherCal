@@ -242,6 +242,8 @@ button{cursor:pointer}
 .ev.cx{opacity:.7}
 .ev.cx b{opacity:.75}
 .ev.cx::after{content:"";position:absolute;left:-6%;right:-6%;top:50%;height:2px;background:var(--ink);opacity:.75;transform:rotate(-11deg);pointer-events:none}
+.ev.short{padding:1px 4px}
+.ev.short b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10.5px;line-height:1.35}
 .ev.done{opacity:.55}
 .ev.done b{text-decoration:line-through}
 .dlg input[type=number]{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px;color:var(--ink);min-height:42px;width:100%}
@@ -669,7 +671,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-11-01 13:08';
+var APP_VERSION='2026-11-01 14:31';
 var S={shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -819,7 +821,6 @@ function dayData(date,seen){
       else{
         item.s=Math.round((Math.max(e.start,ds)-ds)/60000);
         item.en=Math.round((Math.min(e.end,de)-ds)/60000);
-        if(item.en-item.s<25)item.en=item.s+25;
         timed.push(item);
       }
     });
@@ -899,7 +900,7 @@ function render(){
       var top=(it.s/60-h0)*HOUR,ht=Math.max(18,(it.en-it.s)/60*HOUR-2);
       var w=100/it.cols,l=it.col*w;
       var showTime=ht>=34, showLoc=ht>=48&&it.e.loc;
-      return '<button class="ev'+(it.e.done?' done':'')+(isCx(it.src,it.e)?' cx':'')+'" style="--c:'+(it.e.color||it.src.color)+';top:'+top+'px;height:'+ht+'px;left:calc('+l+'% + 1px);width:calc('+w+'% - 2px)" data-ev="'+it.e.id+'" data-src="'+it.src.id+'" data-od="'+(it.e.od||'')+'"><b>'+esc(it.e.title)+'</b>'+(showTime?'<small>'+(isCx(it.src,it.e)?'entfällt · ':'')+hm(it.e.start)+'–'+hm(it.e.end)+(showLoc?' · '+esc(it.e.loc):'')+'</small>':'')+'</button>';
+      return '<button class="ev'+(it.e.done?' done':'')+(isCx(it.src,it.e)?' cx':'')+(ht<34?' short':'')+'" style="--c:'+(it.e.color||it.src.color)+';top:'+top+'px;height:'+ht+'px;left:calc('+l+'% + 1px);width:calc('+w+'% - 2px)" data-ev="'+it.e.id+'" data-src="'+it.src.id+'" data-od="'+(it.e.od||'')+'"><b>'+esc(it.e.title)+'</b>'+(showTime?'<small>'+(isCx(it.src,it.e)?'entfällt · ':'')+hm(it.e.start)+'–'+hm(it.e.end)+(showLoc?' · '+esc(it.e.loc):'')+'</small>':'')+'</button>';
     }).join('');
     var now='';
     if(isT){var nm=new Date();var m=nm.getHours()*60+nm.getMinutes();if(m>=h0*60&&m<=h1*60)now='<div class="now" style="top:'+((m/60-h0)*HOUR)+'px"></div>'}
