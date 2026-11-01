@@ -235,7 +235,12 @@ button{cursor:pointer}
 .ttpz b{font-size:11px;overflow:hidden;text-overflow:ellipsis}
 .ttpz small{font-size:10px;overflow:hidden;text-overflow:ellipsis}
 .ttc.empty.ttpz{color:var(--muted);justify-content:center}
-.ev.chg::after{content:'';position:absolute;top:3px;right:3px;width:9px;height:9px;border-radius:50%;background:#E9742B;border:1.5px solid #fff}
+.ev.chg{box-shadow:inset 0 0 0 2px #E9742B,0 0 0 1px var(--surface)}
+.ev.chg::before{content:'!';position:absolute;top:2px;right:2px;width:15px;height:15px;border-radius:50%;background:#E9742B;color:#fff;font-size:11px;font-weight:800;line-height:15px;text-align:center}
+.ev .chgl{display:block;font-style:normal;font-weight:700;font-size:10px;line-height:1.2;letter-spacing:-.2px;color:#B4540A;margin-top:1px;overflow:hidden}
+.ev.short .chgl{display:none}
+.chgs{display:block;color:#B4540A;font-weight:700}
+@media (prefers-color-scheme:dark){.ev .chgl,.chgs{color:#F6A15E}}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -696,7 +701,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-11-01 15:27';
+var APP_VERSION='2026-11-01 18:23';
 var S={changes:{},shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -926,7 +931,7 @@ function render(){
       var top=(it.s/60-h0)*HOUR,ht=Math.max(18,(it.en-it.s)/60*HOUR-2);
       var w=100/it.cols,l=it.col*w;
       var showTime=ht>=34, showLoc=ht>=48&&it.e.loc;
-      return '<button class="ev'+(it.e.done?' done':'')+(isCx(it.src,it.e)?' cx':'')+(it.e.chg?' chg':'')+(ht<34?' short':'')+'" style="--c:'+(it.e.color||it.src.color)+';top:'+top+'px;height:'+ht+'px;left:calc('+l+'% + 1px);width:calc('+w+'% - 2px)" data-ev="'+it.e.id+'" data-src="'+it.src.id+'" data-od="'+(it.e.od||'')+'"><b>'+esc(it.e.title)+'</b>'+(showTime?'<small>'+(isCx(it.src,it.e)?'entfällt · ':'')+hm(it.e.start)+'–'+hm(it.e.end)+(showLoc?' · '+esc(it.e.loc):'')+'</small>':'')+'</button>';
+      return '<button class="ev'+(it.e.done?' done':'')+(isCx(it.src,it.e)?' cx':'')+(it.e.chg?' chg':'')+(ht<34?' short':'')+'" style="--c:'+(it.e.color||it.src.color)+';top:'+top+'px;height:'+ht+'px;left:calc('+l+'% + 1px);width:calc('+w+'% - 2px)" data-ev="'+it.e.id+'" data-src="'+it.src.id+'" data-od="'+(it.e.od||'')+'"><b>'+esc(it.e.title)+'</b>'+(it.e.chg&&ht>=34?'<em class="chgl">'+chgShort(it.e.chg).map(esc).join('<br>')+'</em>':'')+(showTime?'<small>'+(isCx(it.src,it.e)?'entfällt · ':'')+hm(it.e.start)+'–'+hm(it.e.end)+(showLoc?' · '+esc(it.e.loc):'')+'</small>':'')+'</button>';
     }).join('');
     var now='';
     if(isT){var nm=new Date();var m=nm.getHours()*60+nm.getMinutes();if(m>=h0*60&&m<=h1*60)now='<div class="now" style="top:'+((m/60-h0)*HOUR)+'px"></div>'}
@@ -968,7 +973,7 @@ function renderNow(){
   var rows='',col='var(--wkB)';
   if(cur){
     col=cur.e.color||cur.src.color;
-    rows+='<div class="nowrow"><span class="nowl">Jetzt</span><div><b>'+esc(cur.e.title)+'</b><small>'+(cur.e.loc?esc(cur.e.loc)+' · ':'')+'bis '+hm(cur.e.end)+' · noch '+minTxt(cur.e.end-nowMs)+'</small></div></div>';
+    rows+='<div class="nowrow"><span class="nowl">Jetzt</span><div><b>'+esc(cur.e.title)+'</b><small>'+(cur.e.loc?esc(cur.e.loc)+' · ':'')+'bis '+hm(cur.e.end)+' · noch '+minTxt(cur.e.end-nowMs)+'</small>'+(cur.e.chg?'<small class="chgs">Änderung: '+esc(chgShort(cur.e.chg).join(', '))+'</small>':'')+'</div></div>';
   }else{
     var nm=now.getHours()*60+now.getMinutes();
     var ps=S.tt.slots.filter(function(x){return x.pause&&toMin(x.s)<=nm&&nm<toMin(x.e)})[0];
@@ -976,7 +981,7 @@ function renderNow(){
   }
   if(next){
     if(!cur)col=next.e.color||next.src.color;
-    rows+='<div class="nowrow"><span class="nowl">Danach</span><div><b>'+esc(next.e.title)+'</b><small>'+(next.e.loc?esc(next.e.loc)+' · ':'')+'um '+hm(next.e.start)+' · in '+minTxt(next.e.start-nowMs)+'</small></div></div>';
+    rows+='<div class="nowrow"><span class="nowl">Danach</span><div><b>'+esc(next.e.title)+'</b><small>'+(next.e.loc?esc(next.e.loc)+' · ':'')+'um '+hm(next.e.start)+' · in '+minTxt(next.e.start-nowMs)+'</small>'+(next.e.chg?'<small class="chgs">Änderung: '+esc(chgShort(next.e.chg).join(', '))+'</small>':'')+'</div></div>';
   }else if(!cur){
     rows+='<div class="nowrow"><span class="nowl">Heute</span><div><b>Alles erledigt</b><small>Keine weiteren Termine</small></div></div>';
   }
@@ -1407,6 +1412,7 @@ function evAdj(src,e){
   }
   return o;
 }
+function chgShort(c){var p=[];if(c.sub)p.push('Vertretung');if(c.room)p.push('Raum '+c.room);if(c.s&&c.e)p.push(c.s+'–'+c.e);if(!p.length)p.push('Änderung');return p}
 function chgText(src,e,ev){
   var c=S.changes[cxKey(src,e)];if(!c)return '';
   var p=[];
