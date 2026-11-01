@@ -610,6 +610,24 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   </div>
 </form></dialog>
 
+<dialog id="dReg"><div class="dlg">
+  <h2>Regelmäßige Tätigkeiten</h2>
+  <p class="hint">Für feste Aufgaben ohne feste Uhrzeit, zum Beispiel eine Funktion mit einer Stunde pro Woche. Sie zählen automatisch zur Arbeitszeit, und zwar in Wochen mit Arbeitstagen (nicht in den Ferien). In der Liste steht „pauschal“.</p>
+  <div id="regList"></div>
+  <label>Bezeichnung <input type="text" id="rName" placeholder="z. B. Fachvorsitz Mathe" autocomplete="off"></label>
+  <label>Kategorie <select id="rCat"></select></label>
+  <div class="two">
+    <label>Stunden pro Woche <input type="number" id="rHours" min="0.25" max="20" step="0.25" value="1"></label>
+    <label>Gilt in <select id="rWk"><option value="ab">jeder Woche</option><option value="A">nur A-Wochen</option><option value="B">nur B-Wochen</option></select></label>
+  </div>
+  <div class="two">
+    <label>Ab (optional) <input type="date" id="rFrom"></label>
+    <label>Bis (optional) <input type="date" id="rTo"></label>
+  </div>
+  <div class="actions"><button class="btn primary" type="button" id="rAdd">Hinzufügen</button></div>
+  <div class="actions"><button class="btn" data-close>Schließen</button></div>
+</div></dialog>
+
 <dialog id="dSet"><form class="dlg" id="fSet" method="dialog">
   <h2>Arbeitszeit-Einstellungen</h2>
   <label>Wochenziel (Stunden) <input type="number" id="setSoll" min="1" max="60" step="0.5"></label>
@@ -701,8 +719,8 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-11-01 18:23';
-var S={changes:{},shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
+var APP_VERSION='2026-11-01 20:03';
+var S={reg:[],changes:{},shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
 /* ---------- Datum ---------- */
@@ -725,10 +743,10 @@ function $(id){return document.getElementById(id)}
 
 /* ---------- Speicher ---------- */
 function load(){
-  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};S.encBackup=!!o.encBackup;if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};if(o.work)['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};S.changes=o.changes||{};return true}}catch(e){}
+  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};S.encBackup=!!o.encBackup;if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};if(o.work)['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};S.changes=o.changes||{};S.reg=o.reg||[];return true}}catch(e){}
   return false;
 }
-function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,encBackup:S.encBackup,abs:S.abs,trips:S.trips,shield:S.shield,changes:S.changes,tt:S.tt}))}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,encBackup:S.encBackup,abs:S.abs,trips:S.trips,shield:S.shield,changes:S.changes,reg:S.reg,tt:S.tt}))}catch(e){}}
 function ensureLocal(){
   if(!S.sources.some(function(s){return s.id==='local'})){
     S.sources.unshift({id:'local',name:'Meine Termine',type:'local',color:'#64748B',visible:true,events:[],url:''});
@@ -1340,6 +1358,7 @@ function ensureCats(){
   if(S.work.ferienFrei===undefined)S.work.ferienFrei=true;
   if(!Array.isArray(S.abs))S.abs=[];
   if(!Array.isArray(S.trips))S.trips=[];
+  if(!Array.isArray(S.reg))S.reg=[];
   migrateAbs();
   if(!Array.isArray(S.work.cats)||!S.work.cats.length)S.work.cats=defaultCats();
   if(!S.work.cats.some(function(c){return c.id==='unterricht'}))S.work.cats.unshift(defaultCats()[0]);
@@ -1445,7 +1464,7 @@ function autoEvents(ds,de){
   });
   return out;
 }
-function autoEntries(ds,de){return autoLessons(ds,de).concat(autoEvents(ds,de),autoTrips(ds,de))}
+function autoEntries(ds,de){var nw=Date.now();return autoLessons(ds,de).concat(autoEvents(ds,de),autoTrips(ds,de),regEntries(ds,de).filter(function(e){return e.end<=nw}))}
 function autoLessons(ds,de){
   if(S.work.autoUnt===false)return [];
   var now=Date.now(),seen={},out=[];
@@ -1518,7 +1537,7 @@ function renderWork(){
 
   // Einträge
   var hasU=S.sources.some(function(x){return x.type==='webuntis'})||ttAnyLessons();
-  h+='<div class="wcard"><div class="wacts"><button class="btn" id="wAdd">+ Zeit nachtragen</button><button class="btn" id="wAbs">Abwesenheit</button></div>'+
+  h+='<div class="wcard"><div class="wacts"><button class="btn" id="wAdd">+ Zeit nachtragen</button><button class="btn" id="wAbs">Abwesenheit</button><button class="btn" id="wReg">Regelmäßig</button></div>'+
     '<label style="display:flex;flex-direction:row;gap:10px;align-items:center;font-size:14px;color:var(--ink);margin:0 0 6px"><input type="checkbox" id="wAuto" style="width:20px;height:20px;flex:none;margin:0"'+(S.work.autoUnt!==false?' checked':'')+'><span>Unterricht und Pausenaufsicht automatisch aus dem Stundenplan zählen</span></label>'+
     (hasU?'':'<p class="muted" style="margin:0 0 6px">Noch kein Stundenplan vorhanden. Trage ihn über „+ Kalender“ und „Stundenplan bearbeiten“ ein.</p>');
   if(!st.list.length){
@@ -1533,7 +1552,7 @@ function renderWork(){
       }
       var c=catOf(e.cat);
       var tag=e.virtual?'div':'button';
-      h+='<'+tag+' class="erow'+(e.virtual?' v':'')+'"'+(e.virtual?'':' data-edit="'+e.id+'"')+'><span class="et">'+hm(e.start)+'–'+hm(e.end)+'</span><span class="en"><i class="dot" style="--c:'+c.color+'"></i><span>'+esc(c.name)+(e.note?' <small>'+esc(e.note)+'</small>':'')+(e.virtual?' <small>('+(e.srcName||'WebUntis')+')</small>':'')+'</span></span><span>'+durTxt(e.end-e.start)+'</span></'+tag+'>';
+      h+='<'+tag+' class="erow'+(e.virtual?' v':'')+'"'+(e.virtual?'':' data-edit="'+e.id+'"')+'><span class="et">'+(e.reg?'pauschal':hm(e.start)+'–'+hm(e.end))+'</span><span class="en"><i class="dot" style="--c:'+c.color+'"></i><span>'+esc(c.name)+(e.note?' <small>'+esc(e.note)+'</small>':'')+(e.virtual?' <small>('+(e.srcName||'WebUntis')+')</small>':'')+'</span></span><span>'+durTxt(e.end-e.start)+'</span></'+tag+'>';
     });
   }
   h+='</div>';
@@ -1600,6 +1619,7 @@ $('viewWork').addEventListener('click',function(ev){
   if(t.closest('#wToday')){S.wAnchor=new Date();renderWork();return}
   if(t.closest('#wStats')){stMode='week';stAnchor=new Date(wMon());renderStats();openDlg($('dStats'));return}
   if(t.closest('#wAbs')){openAbs();return}
+  if(t.closest('#wReg')){openReg();return}
   if(t.closest('#wZk')){openSettings();setTimeout(function(){try{$('setZk').focus()}catch(e){}},60);return}
   if(t.closest('#wSet')){openSettings();return}
   if(t.closest('#wCats')){renderCats();openDlg($('dCats'));return}
@@ -1687,6 +1707,50 @@ function remFrac(mon){
   return rem/weekS;
 }
 
+/* Regelmäßige Tätigkeiten */
+var regEdit=null;
+function renderReg(){
+  var l=S.reg.slice();
+  $('regList').innerHTML=l.length?l.map(function(r){
+    var c=catOf(r.cat);
+    return '<div class="brrow"><button type="button" class="lnk" style="text-align:left;flex:1;min-width:0" data-regedit="'+r.id+'"><b>'+esc(r.name)+'</b> · '+esc(c.name)+' · '+String(r.hours).replace('.',',')+' Std/Woche'+(r.wk==='ab'?'':' · nur '+r.wk+'-Wochen')+(r.from?' · ab '+fmtD(r.from):'')+(r.to?' · bis '+fmtD(r.to):'')+'</button><button type="button" class="x" data-regdel="'+r.id+'" aria-label="Eintrag entfernen">×</button></div>';
+  }).join(''):'<p class="muted" style="margin:0">Noch keine regelmäßigen Tätigkeiten eingetragen.</p>';
+}
+function regForm(r){
+  regEdit=r?r.id:null;
+  $('rCat').innerHTML=S.work.cats.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join('');
+  $('rName').value=r?r.name:'';
+  $('rCat').value=r?r.cat:(S.work.cats.some(function(c){return c.id==='organisation'})?'organisation':S.work.cats[0].id);
+  $('rHours').value=r?r.hours:1;
+  $('rWk').value=r?r.wk:'ab';
+  $('rFrom').value=r?(r.from||''):dInput(monday(new Date()));
+  $('rTo').value=r?(r.to||''):'';
+  $('rAdd').textContent=r?'Speichern':'Hinzufügen';
+}
+function openReg(){renderReg();regForm(null);openDlg($('dReg'))}
+function afterReg(){save();renderReg();renderWork()}
+$('rAdd').onclick=function(){
+  var n=$('rName').value.trim(),h=parseFloat($('rHours').value),f=$('rFrom').value,t=$('rTo').value;
+  if(!n){toast('Bitte eine Bezeichnung eingeben, z. B. „Fachvorsitz“.');return}
+  if(isNaN(h)||h<0.25||h>20){toast('Die Stunden pro Woche müssen zwischen 0,25 und 20 liegen.');return}
+  if(f&&t&&t<f){toast('„Bis“ darf nicht vor „Ab“ liegen.');return}
+  var o={id:regEdit||newId(),name:n,cat:$('rCat').value,hours:h,wk:$('rWk').value,from:f||'',to:t||''};
+  if(regEdit){S.reg=S.reg.map(function(x){return x.id===regEdit?o:x})}else S.reg.push(o);
+  var edited=!!regEdit;
+  $('dReg').close();afterReg();
+  toast(edited?'Gespeichert.':'Eingetragen. Die Stunden zählen automatisch in jeder passenden Woche.');
+};
+$('regList').addEventListener('click',function(ev){
+  var d=ev.target.closest('[data-regdel]');
+  if(d){
+    var r=S.reg.find(function(x){return x.id===d.dataset.regdel});if(!r)return;
+    S.reg=S.reg.filter(function(x){return x!==r});afterReg();regForm(null);
+    toast('Entfernt.',function(){S.reg.push(r);afterReg()});return;
+  }
+  var e=ev.target.closest('[data-regedit]');
+  if(e){var r2=S.reg.find(function(x){return x.id===e.dataset.regedit});if(r2)regForm(r2)}
+});
+
 /* Abwesenheiten */
 var ABS_TYPES={krank:'Krank',ferientag:'Beweglicher Ferientag'};
 function tripOn(d){var ds=dInput(d);return S.trips.find(function(t){return t.from<=ds&&ds<=t.to})||null}
@@ -1715,6 +1779,25 @@ function autoTrips(ds,de){
       out.push({id:'tr'+t.id+'-'+dInput(d),cat:'fahrt',start:st,end:en,note:t.name,virtual:true,srcName:'Pauschale'});
     }
   });
+  return out;
+}
+function regEntries(ds,de){
+  var out=[];
+  if(!S.reg.length)return out;
+  for(var m=monday(new Date(ds));m.getTime()<de;m=addDays(m,7)){
+    var day=null;
+    for(var i=6;i>=0;i--){var d=addDays(m,i);if(sollForDay(d)>0){day=d;break}}
+    if(!day)continue;
+    var wt=isoWeek(m).w%2===1?'A':'B',ms=dInput(m),we=dInput(addDays(m,6));
+    var st=new Date(day.getFullYear(),day.getMonth(),day.getDate(),8,0).getTime();
+    if(st<ds||st>=de)continue;
+    S.reg.forEach(function(r){
+      if(r.wk!=='ab'&&r.wk!==wt)return;
+      if(r.from&&we<r.from)return;
+      if(r.to&&ms>r.to)return;
+      out.push({id:'rg'+r.id+'-'+ms,cat:r.cat,start:st,end:st+Math.round(r.hours*60)*60000,note:r.name,virtual:true,reg:true,srcName:'regelmäßig'});
+    });
+  }
   return out;
 }
 function renderTrips(){
@@ -1845,7 +1928,7 @@ function zkHtml(){
 
 /* Wochenprognose */
 function plannedWork(from,de){
-  var out={lessons:0,events:0},seen={};
+  var out={lessons:0,events:0,reg:0},seen={};
   var srcs=S.sources.filter(function(x){return x.type==='webuntis'}).concat(S.sources.filter(function(x){return x.type==='stundenplan'}));
   srcs.forEach(function(src){
     src.events.forEach(function(e){
@@ -1863,6 +1946,7 @@ function plannedWork(from,de){
       if(st<de&&en>from)out.events+=h*60;
     }
   });
+  regEntries(monday(new Date(from)).getTime(),de).forEach(function(e){if(e.end>from&&e.start<de)out.reg+=(e.end-e.start)/60000});
   var loc=S.sources.find(function(x){return x.id==='local'});
   if(loc)loc.events.forEach(function(e){
     if(!e.cat||e.allDay)return;
@@ -1888,7 +1972,7 @@ function forecastFor(mon){
   var avg=sums.length?sums.reduce(function(a,b){return a+b},0)/sums.length:0;
   var frac=remFrac(mon);
   var exp=avg*frac;
-  return {booked:st.total,lessons:pl.lessons,events:pl.events,exp:exp,avg:avg,weeks:sums.length,frac:frac,total:st.total+pl.lessons+pl.events+exp};
+  return {booked:st.total,lessons:pl.lessons,events:pl.events,reg:pl.reg,exp:exp,avg:avg,weeks:sums.length,frac:frac,total:st.total+pl.lessons+pl.events+pl.reg+exp};
 }
 function forecastHtml(mon){
   var f=forecastFor(mon),soll=sollRange(mon.getTime(),addDays(mon,7).getTime()),diff=f.total-soll;
@@ -1903,6 +1987,7 @@ function forecastHtml(mon){
     row('Bisher erfasst',hmm(f.booked)+' Std')+
     row('Geplanter Unterricht (Rest der Woche)',hmm(f.lessons)+' Std')+
     row('Geplante Termine und Veranstaltungen',hmm(f.events)+' Std')+
+    (S.reg.length?row('Regelmäßige Tätigkeiten (noch offen)',hmm(f.reg)+' Std'):'')+
     row(f.weeks?'Erfahrungswert (Ø '+f.weeks+(f.weeks===1?' Woche':' Wochen')+', anteilig)':'Erfahrungswert',f.weeks?hmm(f.exp)+' Std':'noch keine Vergleichswochen')+
     '<p class="muted" style="margin:8px 0 0">Der Erfahrungswert ist der Durchschnitt deiner von Hand erfassten Zeiten (Korrektur, Vorbereitung …) aus den letzten bis zu vier Wochen. Es ist eine Schätzung, kein Versprechen.</p></details></div>';
 }
@@ -2083,7 +2168,7 @@ function exportModel(){
     if(ab)items.push({time:'',cat:'Abwesenheit',note:(ABS_TYPES[ab.type]||'')+(ab.note?': '+ab.note:''),dur:'',min:0});
     it.forEach(function(e){
       var m=(e.end-e.start)/60000;sum+=m;per[e.cat]=(per[e.cat]||0)+m;total+=m;
-      items.push({time:hm(e.start)+'–'+hm(e.end),cat:catOf(e.cat).name,note:(e.note||'')+(e.virtual&&e.srcName?' ('+e.srcName+')':''),dur:hmm(m),min:m,start:e.start,end:e.end});
+      items.push({reg:!!e.reg,time:e.reg?'pauschal':hm(e.start)+'–'+hm(e.end),cat:catOf(e.cat).name,note:(e.note||'')+(e.virtual&&e.srcName?' ('+e.srcName+')':''),dur:hmm(m),min:m,start:e.start,end:e.end});
     });
     days.push({date:new Date(d),label:DAYN[(d.getDay()+6)%7]+', '+d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear(),items:items,sum:sum});
   }
@@ -2128,7 +2213,7 @@ $('stCsv').onclick=async function(){
     var ds=pad(d.date.getDate())+'.'+pad(d.date.getMonth()+1)+'.'+d.date.getFullYear();
     d.items.forEach(function(it){
       if(!it.min){rows.push([ds,'','',it.cat,it.note,'','']);return}
-      rows.push([ds,hm(it.start),hm(it.end),it.cat,it.note,hmm(it.min),dec(it.min)]);
+      rows.push([ds,it.reg?'':hm(it.start),it.reg?'':hm(it.end),it.cat,it.note,hmm(it.min),dec(it.min)]);
     });
   });
   rows.push([]);
@@ -2225,7 +2310,8 @@ function buildBackup(){
     abs:S.abs,
     trips:S.trips,
     shield:S.shield,
-    changes:S.changes
+    changes:S.changes,
+    reg:S.reg
   };
 }
 function stampName(){var d=new Date();return 'lehrerkalender-sicherung-'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'.json'}
@@ -2282,7 +2368,7 @@ $('bGo').onclick=function(){
   S.n=o.n>=1&&o.n<=7?o.n:5;
   S.sources=o.sources;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:true,goal:true};S.tt=o.tt?Object.assign(defaultTT(),o.tt):defaultTT();migrateTT();
   S.work={entries:(o.work&&o.work.entries)||[],running:null,soll:(o.work&&o.work.soll)||41,sollUser:!!(o.work&&o.work.sollUser),autoUnt:!(o.work&&o.work.autoUnt===false),cats:(o.work&&o.work.cats)||null};
-  ['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work&&o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};S.changes=o.changes||{};
+  ['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work&&o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};S.changes=o.changes||{};S.reg=o.reg||[];
   ensureLocal();genTT();ensureCats();if(!S.work.sollUser&&S.work.soll===40)S.work.soll=41;save();pendingRestore=null;
   $('dBackup').close();
   S.anchor=new Date();S.wAnchor=new Date();
