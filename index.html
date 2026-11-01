@@ -241,6 +241,44 @@ button{cursor:pointer}
 .ev.short .chgl{display:none}
 .chgs{display:block;color:#B4540A;font-weight:700}
 @media (prefers-color-scheme:dark){.ev .chgl,.chgs{color:#F6A15E}}
+.navs{display:flex;gap:6px;align-items:center;flex:none}
+.lrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.lrow .legend{margin:0;flex:1 1 auto}
+.btn.sm{min-height:36px;padding:5px 12px;font-size:14px;flex:none}
+.khead h1,.khead h2{font-size:24px}
+.card{overflow:clip}
+.scroll.stk{overflow:visible}
+#cal.stk>.row:first-child{position:sticky;top:0;z-index:6;background:var(--surface)}
+.obtog{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:6px 0;font-size:15px;color:var(--ink);text-align:left;flex:1;min-height:40px}
+.obtog .chev{margin-left:auto;transition:transform .15s;color:var(--muted)}
+.obtog[aria-expanded=true] .chev{transform:rotate(180deg)}
+.gearb{position:relative;width:44px;padding:0;display:grid;place-items:center}
+.tabs{flex-wrap:nowrap}
+.tabs .hlogo{height:26px;width:auto;max-width:34vw;flex:0 1 auto;object-fit:contain}
+.tabs .seg{flex:none}
+.gearb .bdot{position:absolute;top:6px;right:6px}
+.setgrp{margin:0 0 14px}
+.setgrp h3{margin:0 0 6px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.setrow{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 14px;border-radius:12px;min-height:50px;margin-bottom:6px;font-size:15px}
+.setrow small{color:var(--muted);font-size:13px}
+.setrow:active{background:var(--bg)}
+:root{--evfs:11.5px}
+body.fs-l{--evfs:13px}
+.ev,.compact .ev{font-size:var(--evfs)}
+.ev small{font-size:calc(var(--evfs) - .5px)}
+.ev b{overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
+.ev.short b,.ev .chgl{font-size:calc(var(--evfs) - 1px)}
+.acccard{padding-top:2px;padding-bottom:2px}
+.acc{border-bottom:1px solid var(--line)}
+.acc:last-child{border-bottom:0}
+.acc summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;min-height:48px;cursor:pointer;list-style:none;font-size:15px}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary .at{display:flex;flex-direction:column;gap:1px;font-weight:600}
+.acc summary .at small{font-weight:700;font-size:12.5px}
+.acc summary b{font-size:17px;white-space:nowrap}
+.acc summary::after{content:'›';color:var(--muted);font-size:20px;transform:rotate(90deg);transition:transform .15s;margin-left:2px}
+.acc[open] summary::after{transform:rotate(-90deg)}
+.accb{padding:0 0 12px}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -248,6 +286,8 @@ button{cursor:pointer}
 .ev.cx{opacity:.7}
 .ev.cx b{opacity:.75}
 .ev.cx::after{content:"";position:absolute;left:-6%;right:-6%;top:50%;height:2px;background:var(--ink);opacity:.75;transform:rotate(-11deg);pointer-events:none}
+.ev{display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch}
+.ev>*{min-width:0}
 .ev.short{padding:1px 4px}
 .ev.short b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10.5px;line-height:1.35}
 .ev.done{opacity:.55}
@@ -303,6 +343,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
     </div>
     <span class="spacer"></span>
     <button class="runchip" id="runChip" hidden></button>
+    <button class="btn icon gearb" type="button" id="btnSettings" aria-label="Einstellungen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><i class="bdot" id="gDot" hidden></i></button>
     <img class="hlogo" src="data:image/png;base64,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" alt="PAEducation Solutions" width="124" height="33">
   </div>
   <div id="viewCal">
@@ -310,6 +351,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
     <div class="khead">
       <div class="badges" id="badges"></div>
       <div class="title"><div class="h1row"><h1 id="kw"></h1></div><p id="range"></p></div>
+      <div class="navs"><button class="btn icon" id="prev" aria-label="Zurück">‹</button><button class="btn" id="today">Heute</button><button class="btn icon" id="next" aria-label="Weiter">›</button></div>
     </div>
     <button class="btn" id="btnSources">+ Kalender</button>
     <button class="btn primary" id="btnAdd">+ Termin</button>
@@ -318,15 +360,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <div id="nowCard"></div>
   <div id="obCard"></div>
 
-  <div class="bar">
-    <button class="btn icon" id="prev" aria-label="Zurück">‹</button>
-    <button class="btn" id="today">Heute</button>
-    <button class="btn icon" id="next" aria-label="Weiter">›</button>
-    <span class="spacer"></span>
-    <button class="btn" type="button" id="viewBtn">Ansicht</button>
-  </div>
-
-  <div class="legend" id="legend"></div>
+  <div class="lrow"><div class="legend" id="legend"></div><button class="btn sm" type="button" id="viewBtn">Ansicht</button></div>
   <div class="card"><div class="scroll" id="cal"></div></div>
   <p class="foot" id="foot"></p>
   </div>
@@ -338,10 +372,36 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
 <dialog id="dShield" aria-label="Sichtschutz aktiv"><div class="shieldbox"><b>Sichtschutz aktiv</b><span>Tippen, um den Inhalt wieder anzuzeigen</span></div></dialog>
 <button type="button" class="shieldbtn" id="shieldBtn" aria-label="Sichtschutz einschalten" title="Inhalt sofort verdecken"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/></svg></button>
 
+<dialog id="dSettings"><div class="dlg">
+  <h2>Einstellungen</h2>
+  <div class="setgrp"><h3>Anzeige</h3>
+    <button type="button" class="setrow" data-go="view"><b>Ansicht</b><small>Tage pro Woche, Stundenraster, Schriftgröße, Sichtschutz</small></button>
+  </div>
+  <div class="setgrp"><h3>Arbeitszeit</h3>
+    <button type="button" class="setrow" data-go="work"><b>Wochenziel und Arbeitstage</b><small>Teilzeit, Ferien, Zeitkonto, Name für den Export, automatisches Zählen</small></button>
+    <button type="button" class="setrow" data-go="cats"><b>Kategorien</b><small>Eigene Kategorien anlegen, umbenennen, einfärben</small></button>
+    <button type="button" class="setrow" data-go="reg"><b>Regelmäßige Tätigkeiten</b><small>Funktionen mit festen Stunden pro Woche</small></button>
+    <button type="button" class="setrow" data-go="abs"><b>Abwesenheiten</b><small>Krank, Beweglicher Ferientag, Elternzeit</small></button>
+  </div>
+  <div class="setgrp"><h3>Stundenplan</h3>
+    <button type="button" class="setrow" data-go="tt"><b>Stundenplan bearbeiten</b><small>Stunden, Farben, Pausenaufsicht, Versionen</small></button>
+    <button type="button" class="setrow" data-go="slots"><b>Stundenzeiten</b><small>Beginn, Ende und Pausen anpassen</small></button>
+    <button type="button" class="setrow" data-go="breaks"><b>Ferien und freie Tage</b><small>NRW-Schulferien und eigene Zeiträume</small></button>
+  </div>
+  <div class="setgrp"><h3>Kalender und Daten</h3>
+    <button type="button" class="setrow" data-go="src"><b>Kalender importieren und verwalten</b><small>.ics-Dateien, WebUntis, IServ</small></button>
+    <button type="button" class="setrow" data-go="backup"><b>Sichern und Wiederherstellen</b><small id="setBk"></small></button>
+  </div>
+  <p class="muted" style="margin:0" id="setVer"></p>
+  <div class="actions"><button class="btn" data-close>Schließen</button></div>
+</div></dialog>
+
 <dialog id="dView"><div class="dlg">
   <h2>Ansicht</h2>
   <label>Angezeigte Tage pro Woche <select id="daysSel" aria-label="Anzahl angezeigter Tage"></select></label>
   <label class="inline"><input type="checkbox" id="rasterChk"> Stundenraster mit Stundennummern einblenden</label>
+  <label>Schriftgröße der Termine <select id="fsSel"><option value="n">Normal</option><option value="l">Groß</option></select></label>
+  <label class="inline"><input type="checkbox" id="asChk"> Beim Öffnen zur aktuellen Uhrzeit springen</label>
   <hr>
   <label>Sichtschutz automatisch nach
     <select id="shIdle">
@@ -638,6 +698,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <label>Wochenziel (Stunden) <input type="number" id="setSoll" min="1" max="60" step="0.5"></label>
   <div><div class="seglabel" style="margin-bottom:6px">Arbeitstage</div><div class="cats" id="setDays"></div></div>
   <label class="inline"><input type="checkbox" id="setFerien"> Ferien (aus dem Stundenplan) zählen als frei</label>
+  <label class="inline"><input type="checkbox" id="setAuto"> Unterricht und Pausenaufsicht automatisch aus dem Stundenplan zählen</label>
   <label>Zeitkonto rechnen ab (optional) <input type="date" id="setZk"></label>
   <label>Name für den Export (optional) <input type="text" id="setName" autocomplete="off"></label>
   <p class="muted">Feiertage in NRW werden automatisch abgezogen. Bei Teilzeit stellst du hier die Tage ein, an denen du arbeitest, das Wochenziel gilt dann für diese Tage.</p>
@@ -724,7 +785,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-11-01 20:55';
+var APP_VERSION='2026-11-01 21:26';
 var S={reg:[],changes:{},shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -904,6 +965,7 @@ function layoutDay(list){
 }
 
 function render(){
+  document.body.classList.toggle('fs-l',!!(S.shield&&S.shield.evFs==='l'));
   var start=viewStart(),n=S.n,days=[],i;
   for(i=0;i<n;i++)days.push(addDays(start,i));
   var last=days[n-1];
@@ -966,6 +1028,7 @@ function render(){
   $('cal').classList.toggle('raster',!!S.raster);
   var gut=S.raster?60:42,cwid=$('cal').clientWidth;
   $('cal').classList.toggle('compact',cwid>0&&(cwid-gut)/n<96);
+  $('cal').classList.toggle('stk',n<=5);
   $('rasterChk').checked=!!S.raster;
   $('cal').innerHTML=head+allRow+body+plus;
   placeBackupBtn();
@@ -1015,6 +1078,7 @@ function renderNow(){
 setInterval(function(){if(!document.hidden&&S.tab==='cal')renderNow()},30000);
 
 /* ---------- Erste Schritte ---------- */
+var obOpen=null;
 function renderOb(){
   var el=$('obCard');if(!el)return;
   var s1=ttAnyLessons()||S.sources.some(function(x){return x.type==='webuntis'&&x.events.length});
@@ -1024,13 +1088,15 @@ function renderOb(){
     return '<li class="obrow'+(done?' done':'')+'"><span class="obn">'+(done?'✓':n)+'</span><div class="obt"><b>'+title+'</b><small>'+sub+'</small></div>'+
       (done?'':'<button type="button" class="btn" data-ob="'+act+'">'+label+'</button>')+'</li>';
   }
-  el.innerHTML='<div class="wcard obcard"><div class="obhead"><b>Erste Schritte</b><button type="button" class="x" id="obX" aria-label="Ausblenden">×</button></div><ol class="obsteps">'+
+  var doneN=(s1?1:0)+(s3?1:0),open=obOpen===null?doneN===0:obOpen;
+  el.innerHTML='<div class="wcard obcard"><div class="obhead"><button type="button" class="obtog" id="obToggle" aria-expanded="'+open+'"><b>Erste Schritte</b><span class="muted">· '+doneN+' von 2 erledigt</span><span class="chev" aria-hidden="true">▾</span></button><button type="button" class="x" id="obX" aria-label="Ausblenden">×</button></div>'+(open?'<ol class="obsteps">'+
     row(1,s1,'Stundenplan eintragen','Einmal einrichten, danach zählt der Unterricht automatisch.','tt','Einrichten')+
-    row(2,s3,'Wochenziel prüfen','Voreingestellt: '+S.work.soll+' Stunden pro Woche. Dort stellst du auch deine Arbeitstage ein.','goal','Prüfen')+'</ol></div>';
+    row(2,s3,'Wochenziel prüfen','Voreingestellt: '+S.work.soll+' Stunden pro Woche. Dort stellst du auch deine Arbeitstage ein.','goal','Prüfen')+'</ol>':'')+'</div>';
 }
 $('obCard').addEventListener('click',function(ev){
   var b=ev.target.closest('[data-ob]');
   if(ev.target.closest('#obX')){S.ob.hide=true;save();renderOb();return}
+  if(ev.target.closest('#obToggle')){var cur=ev.target.closest('#obToggle').getAttribute('aria-expanded')==='true';obOpen=!cur;renderOb();return}
   if(!b)return;
   var a=b.dataset.ob;
   if(a==='tt')setTab('tt');
@@ -1122,12 +1188,14 @@ document.addEventListener('change',function(ev){
 
 var rzT=null;
 window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(S.tab==='cal')render()},150)});
-$('viewBtn').onclick=function(){$('shIdle').value=String(S.shield.idle||0);$('shRet').checked=!!S.shield.onReturn;openDlg($('dView'))};
+$('viewBtn').onclick=function(){$('shIdle').value=String(S.shield.idle||0);$('shRet').checked=!!S.shield.onReturn;$('fsSel').value=S.shield.evFs||'n';$('asChk').checked=!S.shield.noScroll;openDlg($('dView'))};
+$('fsSel').onchange=function(){S.shield.evFs=this.value;save();render()};
+$('asChk').onchange=function(){S.shield.noScroll=!this.checked;save()};
 $('rasterChk').onchange=function(){S.raster=this.checked;save();render()};
 $('daysSel').addEventListener('change',function(){S.n=+this.value;save();render()});
 $('prev').onclick=function(){var st=viewStart();S.anchor=addDays(st,-7);render()};
 $('next').onclick=function(){var st=viewStart();S.anchor=addDays(st,7);render()};
-$('today').onclick=function(){S.anchor=new Date();render()};
+$('today').onclick=function(){S.anchor=new Date();render();setTimeout(function(){scrollToNow(true)},60)};
 $('btnSources').onclick=function(){renderSources();openDlg($('dSources'))};
 
 $('btnDemoOff').onclick=function(){
@@ -1508,8 +1576,8 @@ function renderWork(){
   var mon=wMon(),st=weekStats(mon),r=S.work.running,sel=r?r.cat:wSel,iw=isoWeek(mon),t=iw.w%2===1?'A':'B';
   var todayMs=sod(new Date()).getTime();
   var h='<div class="khead" style="margin-bottom:12px"><div class="badge '+t+'" role="img" aria-label="Woche '+t+'">'+t+'</div>'+
-    '<div class="title"><div class="h1row"><h2>KW '+iw.w+'</h2><button class="btn" id="wStats">Statistik</button></div><p>'+fmtShort(mon)+' – '+fmtShort(addDays(mon,6))+' '+addDays(mon,6).getFullYear()+'</p></div></div>'+
-    '<div class="bar"><button class="btn icon" id="wPrev" aria-label="Vorherige Woche">‹</button><button class="btn" id="wToday">Heute</button><button class="btn icon" id="wNext" aria-label="Nächste Woche">›</button><span class="spacer"></span><span class="bkslot"></span></div>';
+    '<div class="title"><div class="h1row"><h2>KW '+iw.w+'</h2></div><p>'+fmtShort(mon)+' – '+fmtShort(addDays(mon,6))+' '+addDays(mon,6).getFullYear()+'</p></div>'+
+    '<div class="navs"><button class="btn icon" id="wPrev" aria-label="Vorherige Woche">‹</button><button class="btn" id="wToday">Heute</button><button class="btn icon" id="wNext" aria-label="Nächste Woche">›</button></div></div>';
 
   // Timer
   h+='<div class="wcard"><div class="cats">'+visCats().map(function(c){
@@ -1532,24 +1600,17 @@ function renderWork(){
       var isT=addDays(mon,i).getTime()===todayMs;
       var stack=S.work.cats.filter(function(c){return d[c.id]}).map(function(c){return '<span style="display:block;height:'+Math.max(2,d[c.id]/maxD*110)+'px;background:'+c.color+'"></span>'}).join('');
       return '<div class="bcol"><span>'+(dsum[i]?fmtM(dsum[i]):'')+'</span><div class="barzone"><div class="stack">'+stack+'</div></div><b'+(isT?' class="t"':'')+'>'+DAYN[i]+'</b></div>';
-    }).join('')+'</div></div>';
+    }).join('')+'</div><div style="margin-top:10px"><button class="btn sm" type="button" id="wStats">Statistik und Export</button></div></div>';
 
-  if(mon.getTime()>=monday(new Date()).getTime())h+=forecastHtml(mon);
-  h+=zkHtml();
-
-  // Kategorien
-  var cats=S.work.cats.filter(function(c){return st.per[c.id]});
-  if(cats.length){
-    h+='<div class="wcard">'+cats.map(function(c){
-      var m=st.per[c.id];
-      return '<div class="crow" style="--c:'+c.color+'"><span class="nm"><i class="dot" style="--c:'+c.color+'"></i>'+esc(c.name)+'</span><span>'+(m<1?'unter 1 Min':hmm(m)+' Std')+'</span><div class="sh"><i style="width:'+(m/st.total*100)+'%"></i></div></div>';
-    }).join('')+'</div>';
-  }
+  var accRows=[];
+  if(mon.getTime()>=monday(new Date()).getTime())accRows.push(accRow(forecastParts(mon)));
+  accRows.push(accRow(zkParts()));
+  var cp=catsParts(st);if(cp)accRows.push(accRow(cp));
+  h+='<div class="wcard acccard">'+accRows.join('')+'</div>';
 
   // Einträge
   var hasU=S.sources.some(function(x){return x.type==='webuntis'})||ttAnyLessons();
-  h+='<div class="wcard"><div class="wacts"><button class="btn" id="wAdd">+ Zeit nachtragen</button><button class="btn" id="wAbs">Abwesenheit</button><button class="btn" id="wReg">Regelmäßig</button></div>'+
-    '<label style="display:flex;flex-direction:row;gap:10px;align-items:center;font-size:14px;color:var(--ink);margin:0 0 6px"><input type="checkbox" id="wAuto" style="width:20px;height:20px;flex:none;margin:0"'+(S.work.autoUnt!==false?' checked':'')+'><span>Unterricht und Pausenaufsicht automatisch aus dem Stundenplan zählen</span></label>'+
+  h+='<div class="wcard"><div class="wacts"><button class="btn primary sm" id="wAdd">+ Zeit nachtragen</button><button class="btn sm" id="wAbs">Abwesenheit</button><button class="btn sm" id="wReg">Regelmäßig</button></div>'+
     (hasU?'':'<p class="muted" style="margin:0 0 6px">Noch kein Stundenplan vorhanden. Trage ihn über „+ Kalender“ und „Stundenplan bearbeiten“ ein.</p>');
   if(!st.list.length){
     h+='<p class="muted" style="margin:6px 0 0">Noch keine Zeiten in dieser Woche. Starte den Timer oder trage Zeiten nach.</p>';
@@ -1891,6 +1952,7 @@ function openSettings(){
     return '<button type="button" class="cat" style="--c:var(--wkB);min-height:36px;padding:5px 14px" aria-pressed="'+(S.work.days.indexOf(i)>=0)+'" data-sd="'+i+'">'+n+'</button>';
   }).join('');
   $('setFerien').checked=S.work.ferienFrei!==false;
+  $('setAuto').checked=S.work.autoUnt!==false;
   $('setZk').value=S.work.zkFrom||'';
   $('setName').value=S.work.name||'';
   openDlg($('dSet'));
@@ -1907,6 +1969,7 @@ $('fSet').addEventListener('submit',function(ev){
   if(!days.length){toast('Wähle mindestens einen Arbeitstag.');return}
   S.work.soll=v;S.work.sollUser=true;S.work.days=days;
   S.work.ferienFrei=$('setFerien').checked;
+  S.work.autoUnt=$('setAuto').checked;
   S.work.zkFrom=$('setZk').value||null;
   S.work.name=$('setName').value.trim();
   S.ob.goal=true;
@@ -2001,6 +2064,44 @@ function forecastHtml(mon){
     (S.reg.length?row('Regelmäßige Tätigkeiten (noch offen)',hmm(f.reg)+' Std'):'')+
     row(f.weeks?'Erfahrungswert (Ø '+f.weeks+(f.weeks===1?' Woche':' Wochen')+', anteilig)':'Erfahrungswert',f.weeks?hmm(f.exp)+' Std':'noch keine Vergleichswochen')+
     '<p class="muted" style="margin:8px 0 0">Der Erfahrungswert ist der Durchschnitt deiner von Hand erfassten Zeiten (Korrektur, Vorbereitung …) aus den letzten bis zu vier Wochen. Es ist eine Schätzung, kein Versprechen.</p></details></div>';
+}
+
+/* Ausblick: Prognose, Zeitkonto und Verteilung als Klapp-Zeilen */
+function forecastParts(mon){
+  var f=forecastFor(mon),soll=sollRange(mon.getTime(),addDays(mon,7).getTime()),diff=f.total-soll;
+  var state=diff<=0?['Im Ziel','var(--wkB)']:(diff<=soll*0.1?['Knapp über dem Ziel','#E9742B']:['Deutlich über dem Ziel','#D64550']);
+  var cur=mon.getTime()===monday(new Date()).getTime();
+  var pct=Math.min(100,soll?f.total/soll*100:0);
+  var row=function(a,b){return '<div class="fcrow"><span>'+a+'</span><b>'+b+'</b></div>'};
+  var body='<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(pct)+'"><i style="width:'+pct+'%;background:'+state[1]+'"></i></div>'+
+    row('Bisher erfasst',hmm(f.booked)+' Std')+
+    row('Geplanter Unterricht (Rest der Woche)',hmm(f.lessons)+' Std')+
+    row('Geplante Termine und Veranstaltungen',hmm(f.events)+' Std')+
+    (S.reg.length?row('Regelmäßige Tätigkeiten (noch offen)',hmm(f.reg)+' Std'):'')+
+    row(f.weeks?'Erfahrungswert (Ø '+f.weeks+(f.weeks===1?' Woche':' Wochen')+', anteilig)':'Erfahrungswert',f.weeks?hmm(f.exp)+' Std':'noch keine Vergleichswochen')+
+    '<p class="muted" style="margin:8px 0 0">Der Erfahrungswert ist der Durchschnitt deiner von Hand erfassten Zeiten (Korrektur, Vorbereitung …) aus den letzten bis zu vier Wochen. Es ist eine Schätzung, kein Versprechen.</p>';
+  return {title:'Prognose '+(cur?'diese Woche':'KW '+isoWeek(mon).w),val:hmm(f.total)+' Std',sub:state[0]+(diff>0?' (+'+hmm(diff)+' Std)':''),col:state[1],body:body};
+}
+function zkParts(){
+  var z=zkCalc();
+  if(!z)return {title:'Zeitkonto',val:'einrichten',sub:'',col:'var(--muted)',body:'<p class="muted" style="margin:0 0 10px">Zeigt, ob du über das Schuljahr im Plus oder Minus bist. Lege fest, ab wann gerechnet wird.</p><button type="button" class="btn" id="wZk">Zeitkonto einrichten</button>'};
+  var col=z.diff>=0?'var(--wkB)':'#E9742B';
+  var row=function(a,b){return '<div class="fcrow"><span>'+a+'</span><b>'+b+'</b></div>'};
+  return {title:'Zeitkonto seit '+fmtD(S.work.zkFrom),val:z.empty?'0:00 Std':signedH(z.diff),sub:z.empty?'Noch nichts zu rechnen':(z.diff>=0?'Im Plus':'Im Minus'),col:col,
+    body:row('Erfasst (bis gestern)',hmm(z.ist)+' Std')+row('Ziel an deinen Arbeitstagen',hmm(z.soll)+' Std')+row('Unterschied',signedH(z.diff))+
+    '<p class="muted" style="margin:8px 0 0">Feiertage in NRW, Ferien (falls eingestellt) und Abwesenheitstage zählen als frei und haben kein Ziel. Das ist eine Orientierung und keine rechtlich geprüfte Berechnung. <button type="button" class="lnk" id="wZk">Einstellungen</button></p>'};
+}
+function catsParts(st){
+  var cats=S.work.cats.filter(function(c){return st.per[c.id]});
+  if(!cats.length)return null;
+  var top=cats.slice().sort(function(a,b){return st.per[b.id]-st.per[a.id]})[0];
+  return {title:'Verteilung nach Kategorie',val:esc(top.name),sub:'',col:'var(--ink)',body:cats.map(function(c){
+    var m=st.per[c.id];
+    return '<div class="crow" style="--c:'+c.color+'"><span class="nm"><i class="dot" style="--c:'+c.color+'"></i>'+esc(c.name)+'</span><span>'+(m<1?'unter 1 Min':hmm(m)+' Std')+'</span><div class="sh"><i style="width:'+(m/st.total*100)+'%"></i></div></div>';
+  }).join('')};
+}
+function accRow(p){
+  return '<details class="acc"><summary><span class="at">'+p.title+(p.sub?'<small style="color:'+p.col+'">'+p.sub+'</small>':'')+'</span><b style="color:'+p.col+'">'+p.val+'</b></summary><div class="accb">'+p.body+'</div></details>';
 }
 
 /* Statistik */
@@ -2297,6 +2398,7 @@ function fmtStamp(ts){var d=new Date(ts);return d.toLocaleDateString('de-DE',{we
 function backupUi(){
   var stale=!S.lastBackup||Date.now()-S.lastBackup>7*864e5;
   $('bDot').hidden=!stale;
+  if($('gDot'))$('gDot').hidden=!stale;
   $('bInfo').textContent=S.lastBackup?'Letzte Sicherung: '+fmtStamp(S.lastBackup)+'.'+(stale?' Das ist länger als eine Woche her.':''):'Noch nicht gesichert. Alle Daten liegen nur in diesem Browser auf diesem Gerät.';
   $('bSave').hidden=false;
   $('bCopy').hidden=true;
@@ -2940,6 +3042,49 @@ $('chgDel').onclick=function(){
   delete S.changes[k];save();$('dChg').close();render();
   toast('Änderung entfernt.',function(){if(old){S.changes[k]=old;save();render()}});
 };
+
+/* ---------- Zentrale Einstellungen ---------- */
+function openSettingsHub(){
+  $('setBk').textContent=S.lastBackup?'Letzte Sicherung: '+fmtStamp(S.lastBackup):'Noch nicht gesichert';
+  $('setVer').textContent=(typeof APP_VERSION!=='undefined'?'Version '+APP_VERSION+' · ':'')+'Alle Daten bleiben auf diesem Gerät.';
+  openDlg($('dSettings'));
+}
+$('btnSettings').onclick=openSettingsHub;
+$('dSettings').addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-go]');if(!b)return;
+  var g=b.dataset.go;
+  $('dSettings').close();
+  setTimeout(function(){
+    if(g==='view')$('viewBtn').click();
+    else if(g==='work')openSettings();
+    else if(g==='cats'){renderCats();openDlg($('dCats'))}
+    else if(g==='reg')openReg();
+    else if(g==='abs')openAbs();
+    else if(g==='tt')setTab('tt');
+    else if(g==='slots'){setTab('tt');$('ttSlots').click()}
+    else if(g==='breaks'){setTab('tt');$('ttBreaks').click()}
+    else if(g==='src')$('btnSources').click();
+    else if(g==='backup')$('btnBackup').click();
+  },30);
+});
+
+/* ---------- Zur aktuellen Uhrzeit springen ---------- */
+function scrollToNow(force){
+  if(S.tab!=='cal'||(S.shield&&S.shield.noScroll&&!force))return;
+  var st=viewStart(),now=new Date();
+  if(!(now>=st&&now<addDays(st,7)))return;
+  var col=document.querySelector('#cal .col');if(!col)return;
+  var h0=+col.dataset.h0,nm=now.getHours()*60+now.getMinutes(),m;
+  var evs=[].slice.call(document.querySelectorAll('#cal .ev'));
+  var colTop=col.getBoundingClientRect().top+window.scrollY;
+  if(nm>=h0*60+30&&nm<=lastH1*60-30)m=nm-75;
+  else if(evs.length){m=Math.min.apply(null,evs.map(function(e){return (e.getBoundingClientRect().top+window.scrollY-colTop)/HOUR*60+h0*60}))-10}
+  else return;
+  var head=document.querySelector('#cal>.row');
+  var y=colTop+(m/60-h0)*HOUR-(head?head.offsetHeight:0)-8;
+  if(y>window.scrollY)window.scrollTo(0,Math.max(0,y));
+}
+window.addEventListener('load',function(){setTimeout(function(){scrollToNow(false)},120)});
 
 /* ---------- Wischen zwischen den Wochen ---------- */
 function slideAnim(el,dir){
