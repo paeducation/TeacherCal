@@ -560,12 +560,13 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
 
 <dialog id="dAbs"><div class="dlg">
   <h2>Abwesenheit</h2>
-  <p class="hint">An diesen Tagen entfällt der Unterricht, und das Tagesziel der Arbeitszeit ist 0. Fahrten, Fortbildungen und alles andere zählen als Arbeitszeit: Trage Fahrten und Fortbildungen über „+ Termin“ und „Dienstl. Veranstaltung“ ein, alles andere als Zeit oder Termin.</p>
+  <p class="hint">An diesen Tagen entfällt der Unterricht, und das Tagesziel der Arbeitszeit ist 0. Es entstehen also keine Minusstunden. Das gilt auch für die Elternzeit, die du über „Von“ und „Bis“ für den ganzen Zeitraum auf einmal eintragen kannst. Fahrten, Fortbildungen und alles andere zählen als Arbeitszeit: Trage Fahrten und Fortbildungen über „+ Termin“ und „Dienstl. Veranstaltung“ ein, alles andere als Zeit oder Termin.</p>
   <div id="absList"></div>
   <label>Art
     <select id="aType">
       <option value="krank">Krank</option>
       <option value="ferientag">Beweglicher Ferientag</option>
+      <option value="elternzeit">Elternzeit</option>
     </select>
   </label>
   <div class="two">
@@ -723,7 +724,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-11-01 20:11';
+var APP_VERSION='2026-11-01 20:55';
 var S={reg:[],changes:{},shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -840,7 +841,8 @@ function visibleSources(){return S.sources.filter(function(s){return s.visible})
 var dupes=0;
 var IC_KRANK='<svg class="abic" viewBox="0 0 16 16" width="15" height="15" role="img" aria-label="Krank"><rect x="6" y="1.5" width="4" height="13" rx="1" fill="#D64550"/><rect x="1.5" y="6" width="13" height="4" rx="1" fill="#D64550"/></svg>';
 var IC_PALM='<svg class="abic" viewBox="0 0 16 16" width="17" height="17" role="img" aria-label="Beweglicher Ferientag"><path d="M8.4 15.2C8.2 11.6 8.5 9 9.1 6.6" stroke="#8B5E34" stroke-width="1.6" fill="none" stroke-linecap="round"/><g fill="#2E9E5B"><path d="M9.1 6.6C7.6 3.8 4.6 3.6 2.4 5.3C5 4.8 7.2 5.5 9.1 6.6Z"/><path d="M9.1 6.6C10.6 3.7 13.6 3.4 14.9 5.5C12.5 4.7 10.7 5.4 9.1 6.6Z"/><path d="M9.1 6.6C8.5 4 9 2 10.4 0.9C10.3 3 9.9 4.9 9.1 6.6Z"/><path d="M9.1 6.6C6.9 6.7 4.3 8.1 3.4 10.2C5.7 8.7 7.5 8 9.1 6.6Z"/><path d="M9.1 6.6C11.1 7.1 13.3 8.5 13.7 10.6C11.9 8.9 10.5 7.9 9.1 6.6Z"/></g></svg>';
-function absIcon(a){return a?(a.type==='krank'?IC_KRANK:IC_PALM):''}
+var IC_ELTERN='<svg class="abic" viewBox="0 0 16 16" width="15" height="15" role="img" aria-label="Elternzeit"><path d="M8 14.3C3.1 10.8 1.6 8.3 1.6 6.1A3.4 3.4 0 0 1 8 4.5a3.4 3.4 0 0 1 6.4 1.6c0 2.2-1.5 4.7-6.4 8.2Z" fill="#9B5DE5"/></svg>';
+function absIcon(a){return a?(a.type==='krank'?IC_KRANK:(a.type==='elternzeit'?IC_ELTERN:IC_PALM)):''}
 var REPS={weekly:'Jede Woche',biweekly:'Alle 2 Wochen',A:'Nur A-Wochen',B:'Nur B-Wochen'};
 function occOn(e,date){
   var r=e.rep;if(!r)return null;
@@ -1761,7 +1763,7 @@ $('regList').addEventListener('click',function(ev){
 });
 
 /* Abwesenheiten */
-var ABS_TYPES={krank:'Krank',ferientag:'Beweglicher Ferientag'};
+var ABS_TYPES={krank:'Krank',ferientag:'Beweglicher Ferientag',elternzeit:'Elternzeit'};
 function tripOn(d){var ds=dInput(d);return S.trips.find(function(t){return t.from<=ds&&ds<=t.to})||null}
 function cxReason(d){
   var a=absOn(d);if(a)return 'Abwesenheit: '+(ABS_TYPES[a.type]||'');
@@ -1771,7 +1773,7 @@ function cxReason(d){
 function migrateAbs(){
   var keep=[];
   S.abs.forEach(function(a){
-    if(a.type==='krank'||a.type==='ferientag'){keep.push(a);return}
+    if(a.type==='krank'||a.type==='ferientag'||a.type==='elternzeit'){keep.push(a);return}
     if(a.type==='urlaub'){a.type='ferientag';keep.push(a);return}
     if(a.type==='fahrt'){S.trips.push({id:a.id,name:'Klassenfahrt',from:a.from,to:a.to,hours:10,note:a.note||''});return}
     if(a.type==='fortbildung'){S.trips.push({id:a.id,name:'Fortbildung',from:a.from,to:a.to,hours:Math.round(dayTargetMin()/6)/10,note:a.note||''})}
