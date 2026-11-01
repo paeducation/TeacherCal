@@ -231,6 +231,10 @@ button{cursor:pointer}
 .sl-n{animation:slN .22s ease-out}
 .sl-p{animation:slP .22s ease-out}
 @media (prefers-reduced-motion:reduce){.sl-n,.sl-p{animation:none}}
+.ttpz{min-height:0!important;padding:1px 5px!important;font-size:11px!important;flex-direction:row!important;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;line-height:1.1}
+.ttpz b{font-size:11px;overflow:hidden;text-overflow:ellipsis}
+.ttpz small{font-size:10px;overflow:hidden;text-overflow:ellipsis}
+.ttc.empty.ttpz{color:var(--muted);justify-content:center}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -467,7 +471,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <label>Bezeichnung (z. B. Mathe 9b) <input type="text" id="lTitle" list="lTitles" required autocomplete="off"></label>
   <datalist id="lTitles"></datalist>
   <div class="cats" id="lChips" style="margin-top:-4px"></div>
-  <label>Raum (optional) <input type="text" id="lRoom" autocomplete="off"></label>
+  <label id="lRoomWrap"><span id="lRoomLbl">Raum (optional)</span> <input type="text" id="lRoom" autocomplete="off"></label>
   <div class="two">
     <label>Gilt in
       <select id="lWk">
@@ -476,9 +480,10 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
         <option value="B">Nur B-Woche</option>
       </select>
     </label>
-    <label>Dauer <select id="lSpan"></select></label>
+    <label id="lSpanWrap">Dauer <select id="lSpan"></select></label>
   </div>
   <div id="lDaysWrap"><div class="seglabel" style="margin-bottom:6px">Dieselbe Stunde auch an</div><div class="cats" id="lDays"></div></div>
+  <div id="lColorWrap"><div class="seglabel" style="margin-bottom:6px">Farbe</div><div class="swatches" id="lColors"></div><p class="muted" style="margin:6px 0 0" id="lColorHint">Stunden mit gleicher Bezeichnung bekommen automatisch dieselbe Farbe.</p></div>
   <label class="inline"><input type="checkbox" id="lCustom"> Abweichende Uhrzeit (z. B. Beginn 7:45 Uhr)</label>
   <div class="two" id="lTimes" hidden>
     <label>Beginn <input type="time" id="lCs"></label>
@@ -664,7 +669,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-10-31 21:41';
+var APP_VERSION='2026-11-01 13:08';
 var S={shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -1389,7 +1394,7 @@ function autoLessons(ds,de){
       if(isCx(src,e))return;
       var k=e.title.toLowerCase()+'|'+e.start,ks='s|'+e.start;
       if(seen[k]||seen[ks])return;seen[k]=1;seen[ks]=1;
-      out.push({id:'u'+src.id+e.id,cat:'unterricht',start:e.start,end:e.end,note:e.title,virtual:true,srcName:src.type==='stundenplan'?'Stundenplan':'WebUntis'});
+      out.push({id:'u'+src.id+e.id,cat:e.kind==='aufsicht'?'aufsicht':'unterricht',start:e.start,end:e.end,note:e.title,virtual:true,srcName:src.type==='stundenplan'?'Stundenplan':'WebUntis'});
     });
   });
   return out;
@@ -1451,7 +1456,7 @@ function renderWork(){
   // Einträge
   var hasU=S.sources.some(function(x){return x.type==='webuntis'})||ttAnyLessons();
   h+='<div class="wcard"><div class="wacts"><button class="btn" id="wAdd">+ Zeit nachtragen</button><button class="btn" id="wAbs">Abwesenheit</button></div>'+
-    '<label style="display:flex;flex-direction:row;gap:10px;align-items:center;font-size:14px;color:var(--ink);margin:0 0 6px"><input type="checkbox" id="wAuto" style="width:20px;height:20px;flex:none;margin:0"'+(S.work.autoUnt!==false?' checked':'')+'><span>Unterricht automatisch aus dem Stundenplan zählen</span></label>'+
+    '<label style="display:flex;flex-direction:row;gap:10px;align-items:center;font-size:14px;color:var(--ink);margin:0 0 6px"><input type="checkbox" id="wAuto" style="width:20px;height:20px;flex:none;margin:0"'+(S.work.autoUnt!==false?' checked':'')+'><span>Unterricht und Pausenaufsicht automatisch aus dem Stundenplan zählen</span></label>'+
     (hasU?'':'<p class="muted" style="margin:0 0 6px">Noch kein Stundenplan vorhanden. Trage ihn über „+ Kalender“ und „Stundenplan bearbeiten“ ein.</p>');
   if(!st.list.length){
     h+='<p class="muted" style="margin:6px 0 0">Noch keine Zeiten in dieser Woche. Starte den Timer oder trage Zeiten nach.</p>';
@@ -2317,7 +2322,7 @@ function genTT(){
           if(l.wk!=='ab'&&l.wk!==type)return;
           var s1=tt.slots[l.slot],s2=tt.slots[Math.min(tt.slots.length-1,l.slot+l.span-1)];
           if(!s1||!s2)return;
-          ev.push({id:'tt'+l.id+'-'+dInput(d),title:l.title,loc:l.room||'',start:atMin(d,(l.cs&&l.ce)?l.cs:s1.s),end:atMin(d,(l.cs&&l.ce)?l.ce:s2.e),allDay:false,tt:true});
+          ev.push(Object.assign({id:'tt'+l.id+'-'+dInput(d),title:l.title,loc:l.room||'',start:atMin(d,(l.cs&&l.ce)?l.cs:s1.s),end:atMin(d,(l.cs&&l.ce)?l.ce:s2.e),allDay:false,tt:true},l.color?{color:l.color}:(l.kind==='aufsicht'?{color:'#0F8B8D'}:{}),l.kind?{kind:l.kind}:{}));
         });
       }
     }
@@ -2332,19 +2337,27 @@ function renderTT(){
   if(!ttView)ttView=wkType(new Date());
   var ver=editVer(),vis=ver.lessons.filter(function(l){return l.wk==='ab'||l.wk===ttView});
   vis.forEach(function(l){for(var k=0;k<l.span;k++)occ[l.day+'|'+(l.slot+k)]=1});
-  var h='<div class="khead" style="margin-bottom:12px"><div class="title"><div class="h1row"><h2>Stundenplan</h2><span class="bkslot"></span></div><p>Tippe auf ein Feld, um eine Stunde einzutragen.</p></div></div>'+
+  var h='<div class="khead" style="margin-bottom:12px"><div class="title"><div class="h1row"><h2>Stundenplan</h2><span class="bkslot"></span></div><p>Tippe auf ein Feld, um eine Stunde einzutragen. In den Pausen trägst du eine Aufsicht ein.</p></div></div>'+
     '<div class="bar"><button type="button" class="btn" id="ttBack"><span style="font-family:system-ui,-apple-system,Roboto,sans-serif;font-size:22px;line-height:1;vertical-align:-2px">‹</span> Kalender</button><span class="spacer"></span>'+
     '<div class="seg" role="group" aria-label="Woche">'+['A','B'].map(function(t){return '<button type="button" data-ttwk="'+t+'" aria-pressed="'+(ttView===t)+'">'+t+'-Woche</button>'}).join('')+'</div></div>';
-  var g='<div class="ttgrid" style="grid-template-rows:26px '+tt.slots.map(function(x){return x.pause?(x.num?'34px':'24px'):'minmax(62px,auto)'}).join(' ')+'"><div></div>'+
+  var g='<div class="ttgrid" style="grid-template-rows:26px '+tt.slots.map(function(x){return x.pause?(x.num?'34px':'30px'):'minmax(62px,auto)'}).join(' ')+'"><div></div>'+
     ['Mo','Di','Mi','Do','Fr'].map(function(d,i){return '<div class="tth" style="grid-column:'+(i+2)+';grid-row:1">'+d+'</div>'}).join('')+
     tt.slots.map(function(x,i){return '<div class="ttt" style="grid-column:1;grid-row:'+(i+2)+'">'+(x.pause?'<span>Pause</span>':'<b>'+slotNum(i)+'</b>')+'<span>'+x.s+'</span></div>'}).join('');
   for(var d=0;d<5;d++)for(var i=0;i<N;i++){
     if(tt.slots[i].pause||occ[d+'|'+i])continue;
     g+='<button type="button" class="ttc empty" data-ttc="'+d+','+i+'" style="grid-column:'+(d+2)+';grid-row:'+(i+2)+'" aria-label="'+TTDAYS[d]+', '+slotNum(i)+'. Stunde eintragen">+</button>';
   }
-  tt.slots.forEach(function(x,i){if(x.pause)g+='<div class="ttp" style="grid-column:2 / span 5;grid-row:'+(i+2)+'">Pause · '+x.s+'–'+x.e+'</div>'});
+  tt.slots.forEach(function(x,i){
+    if(!x.pause)return;
+    for(var d2=0;d2<5;d2++){
+      var au=vis.find(function(l){return l.kind==='aufsicht'&&l.day===d2&&l.slot===i});
+      if(au)g+='<button type="button" class="ttc ttpz" data-ttl="'+au.id+'" style="--c:'+(au.color||lessonDefaultColor('aufsicht'))+';grid-column:'+(d2+2)+';grid-row:'+(i+2)+'"><b>'+esc(au.title)+'</b>'+(au.room?'<small>'+esc(au.room)+'</small>':'')+'</button>';
+      else g+='<button type="button" class="ttc empty ttpz" data-ttc="'+d2+','+i+'" style="grid-column:'+(d2+2)+';grid-row:'+(i+2)+'" aria-label="'+TTDAYS[d2]+', Pause '+x.s+' bis '+x.e+': Aufsicht eintragen">Pause</button>';
+    }
+  });
   vis.forEach(function(l){
-    g+='<button type="button" class="ttc" data-ttl="'+l.id+'" style="--c:'+ttColor(l.title)+';grid-column:'+(l.day+2)+';grid-row:'+(l.slot+2)+' / span '+l.span+'"><b>'+esc(l.title)+'</b>'+(l.room?'<small>'+esc(l.room)+'</small>':'')+((l.cs&&l.ce)?'<small>'+l.cs+'–'+l.ce+'</small>':'')+'</button>';
+    if(l.kind==='aufsicht')return;
+    g+='<button type="button" class="ttc" data-ttl="'+l.id+'" style="--c:'+(l.color||lessonDefaultColor(''))+';grid-column:'+(l.day+2)+';grid-row:'+(l.slot+2)+' / span '+l.span+'"><b>'+esc(l.title)+'</b>'+(l.room?'<small>'+esc(l.room)+'</small>':'')+((l.cs&&l.ce)?'<small>'+l.cs+'–'+l.ce+'</small>':'')+'</button>';
   });
   g+='</div>';
   h+='<div class="wcard"><div class="scroll">'+g+'</div></div>';
@@ -2373,9 +2386,27 @@ function lDefaultTimes(){
   $('lCs').value=S.tt.slots[ttEdit.slot].s;
   $('lCe').value=S.tt.slots[Math.min(N-1,ttEdit.slot+sp-1)].e;
 }
+function lessonDefaultColor(kind){return kind==='aufsicht'?'#0F8B8D':((S.sources.find(function(x){return x.id==='stundenplan'})||{}).color||'#2F6FED')}
+function buildLessonColors(sel,kind){
+  var base=lessonDefaultColor(kind);
+  $('lColors').innerHTML=[''].concat(COLORS).map(function(c,i){
+    return '<span><input type="radio" name="lc" id="lc'+i+'" value="'+c+'"'+((c===(sel||''))?' checked':'')+'><label for="lc'+i+'" style="--c:'+(c||base)+'" title="'+(c?c:'Standardfarbe')+'"></label></span>';
+  }).join('');
+}
+function normT(t){return String(t||'').trim().toLowerCase()}
+function sameTitleLessons(t){var n=normT(t);if(!n)return [];return allLessons().filter(function(o){return !o.kind&&normT(o.title)===n&&(!ttEdit||o.id!==ttEdit.id)})}
+function syncTitleColor(){
+  if(!ttEdit||ttEdit.pause)return;
+  var same=sameTitleLessons($('lTitle').value);
+  if(!same.length)return;
+  var withCol=same.find(function(o){return o.color});
+  var r=document.querySelector('#lColors input[value="'+(withCol?withCol.color:'')+'"]');
+  if(r)r.checked=true;
+}
+$('lTitle').addEventListener('input',syncTitleColor);
 function buildLessonChips(){
   var cnt={},room={};
-  allLessons().forEach(function(l){cnt[l.title]=(cnt[l.title]||0)+1;if(!room[l.title]&&l.room)room[l.title]=l.room});
+  allLessons().forEach(function(l){if(l.kind)return;cnt[l.title]=(cnt[l.title]||0)+1;if(!room[l.title]&&l.room)room[l.title]=l.room});
   var list=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]}).slice(0,8);
   $('lChips').innerHTML=list.map(function(t){
     return '<button type="button" class="cat" style="--c:var(--wkB);min-height:34px;padding:5px 10px" data-lt="'+esc(t)+'" data-lr="'+esc(room[t]||'')+'">'+esc(t)+'</button>';
@@ -2390,6 +2421,7 @@ $('lChips').addEventListener('click',function(ev){
   var b=ev.target.closest('[data-lt]');if(!b)return;
   $('lTitle').value=b.dataset.lt;
   if(b.dataset.lr&&!$('lRoom').value)$('lRoom').value=b.dataset.lr;
+  syncTitleColor();
 });
 $('lDays').addEventListener('click',function(ev){
   var b=ev.target.closest('[data-ld]');if(!b)return;
@@ -2398,18 +2430,28 @@ $('lDays').addEventListener('click',function(ev){
 function openLesson(id,day,slot){
   var tt=S.tt,l=id?editVer().lessons.find(function(x){return x.id===id}):null;
   ttEdit={id:l?l.id:null,day:l?l.day:day,slot:l?l.slot:slot};
-  var sl=ttEdit.slot;
-  $('lHead').textContent=l?'Stunde bearbeiten':'Stunde eintragen';
-  $('lWhere').textContent=TTDAYS[ttEdit.day]+', '+slotNum(sl)+'. Stunde ('+tt.slots[sl].s+'–'+tt.slots[sl].e+')';
+  var sl=ttEdit.slot,pause=!!tt.slots[sl].pause;
+  ttEdit.pause=pause;
+  $('lHead').textContent=pause?(l?'Pausenaufsicht bearbeiten':'Pausenaufsicht eintragen'):(l?'Stunde bearbeiten':'Stunde eintragen');
+  $('lWhere').textContent=TTDAYS[ttEdit.day]+', '+(pause?'Pause':slotNum(sl)+'. Stunde')+' ('+tt.slots[sl].s+'–'+tt.slots[sl].e+')';
   var seen={};
   $('lTitles').innerHTML=allLessons().filter(function(x){if(seen[x.title])return false;seen[x.title]=1;return true}).map(function(x){return '<option value="'+esc(x.title)+'">'}).join('');
-  $('lTitle').value=l?l.title:'';$('lRoom').value=l?l.room:'';$('lWk').value=l?l.wk:'ab';
-  var max=Math.min(runLen(sl),6),opts='';
-  for(var i=1;i<=max;i++)opts+='<option value="'+i+'">'+(i===1?'1 Stunde':i===2?'Doppelstunde (2)':i+' Stunden')+'</option>';
-  $('lSpan').innerHTML=opts;$('lSpan').value=String(l?Math.min(l.span,max):Math.min(defaultSpan(sl,ttEdit.day),max));
+  $('lTitle').value=l?l.title:(pause?'Pausenaufsicht':'');$('lRoom').value=l?l.room:'';$('lWk').value=l?l.wk:'ab';
+  $('lRoomLbl').textContent=pause?'Ort (z. B. Schulhof)':'Raum (optional)';
+  $('lSpanWrap').hidden=pause;
+  var opts='';
+  if(pause){opts='<option value="1">1</option>'}
+  else{
+    var max=Math.min(runLen(sl),6);
+    for(var i=1;i<=max;i++)opts+='<option value="'+i+'">'+(i===1?'1 Stunde':i===2?'Doppelstunde (2)':i+' Stunden')+'</option>';
+  }
+  $('lSpan').innerHTML=opts;
+  $('lSpan').value=pause?'1':String(l?Math.min(l.span,Math.min(runLen(sl),6)):Math.min(defaultSpan(sl,ttEdit.day),Math.min(runLen(sl),6)));
   $('lDel').hidden=!l;
-  buildLessonChips();$('lChips').hidden=!!l||!$('lChips').children.length;
+  buildLessonChips();$('lChips').hidden=pause||!!l||!$('lChips').children.length;
   buildDayChips(ttEdit.day);$('lDaysWrap').hidden=!!l;
+  buildLessonColors(l&&l.color||'',pause?'aufsicht':'');
+  $('lColorHint').hidden=pause;
   $('lCustom').checked=!!(l&&l.cs&&l.ce);$('lTimes').hidden=!$('lCustom').checked;
   if(l&&l.cs&&l.ce){$('lCs').value=l.cs;$('lCe').value=l.ce}else lDefaultTimes();
   openDlg($('dLesson'));
@@ -2450,7 +2492,8 @@ $('fLesson').addEventListener('submit',function(ev){
   var title=$('lTitle').value.trim();if(!title||!ttEdit)return;
   var custom=$('lCustom').checked,cs=$('lCs').value,ce=$('lCe').value;
   if(custom&&(!cs||!ce||ce<=cs)){toast('Bei der abweichenden Uhrzeit muss das Ende nach dem Beginn liegen.');return}
-  var span=+$('lSpan').value||1,wk=$('lWk').value,d=ttEdit.day,sl=ttEdit.slot,editId=ttEdit.id,room=$('lRoom').value.trim();
+  var pause=!!ttEdit.pause,span=pause?1:(+$('lSpan').value||1),wk=$('lWk').value,d=ttEdit.day,sl=ttEdit.slot,editId=ttEdit.id,room=$('lRoom').value.trim();
+  var color=(document.querySelector('input[name=lc]:checked')||{}).value||'',propagate=!pause;
   var extra=editId?[]:Array.prototype.filter.call($('lDays').children,function(x){return x.getAttribute('aria-pressed')==='true'}).map(function(x){return +x.dataset.ld});
   var days=[d].concat(extra.filter(function(x){return x!==d}));
   $('dLesson').close();
@@ -2463,8 +2506,9 @@ $('fLesson').addEventListener('submit',function(ev){
         if(o.slot<sl+span&&sl<o.slot+o.span&&(o.wk==='ab'||wk==='ab'||o.wk===wk)){replaced.push(o.title);return false}
         return true;
       });
-      ver.lessons.push(Object.assign({id:(idx===0&&editId)?editId:newId(),day:dd,slot:sl,span:span,title:title,room:room,wk:wk},custom?{cs:cs,ce:ce}:{}));
+      ver.lessons.push(Object.assign({id:(idx===0&&editId)?editId:newId(),day:dd,slot:sl,span:span,title:title,room:room,wk:wk},color?{color:color}:{},pause?{kind:'aufsicht'}:{},custom?{cs:cs,ce:ce}:{}));
     });
+    if(propagate)ver.lessons.forEach(function(o){if(!o.kind&&normT(o.title)===normT(title)){if(color)o.color=color;else delete o.color}});
     if(!ver.from)ver.from=dInput(monday(new Date()));
     if(!ver.setupEnd)ver.setupEnd=Date.now()+864e5;
     if(replaced.length)setTimeout(function(){toast('Ersetzt: '+replaced.join(', ')+'.')},0);
@@ -2518,8 +2562,8 @@ $('fSlots').addEventListener('submit',function(ev){
   S.tt.slots=slots;
   var N=slots.length;
   S.tt.versions.forEach(function(v){
-    v.lessons=v.lessons.filter(function(l){return l.slot<N&&!slots[l.slot].pause});
-    v.lessons.forEach(function(l){l.span=Math.max(1,Math.min(l.span,N-l.slot,runLen(l.slot)))});
+    v.lessons=v.lessons.filter(function(l){return l.slot<N&&(l.kind==='aufsicht'?!!slots[l.slot].pause:!slots[l.slot].pause)});
+    v.lessons.forEach(function(l){l.span=l.kind==='aufsicht'?1:Math.max(1,Math.min(l.span,N-l.slot,runLen(l.slot)))});
   });
   genTT();save();$('dSlots').close();renderTT();
 });
