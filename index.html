@@ -235,6 +235,7 @@ button{cursor:pointer}
 .ttpz b{font-size:11px;overflow:hidden;text-overflow:ellipsis}
 .ttpz small{font-size:10px;overflow:hidden;text-overflow:ellipsis}
 .ttc.empty.ttpz{color:var(--muted);justify-content:center}
+.ev.chg::after{content:'';position:absolute;top:3px;right:3px;width:9px;height:9px;border-radius:50%;background:#E9742B;border:1.5px solid #fff}
 .lnk{border:0;background:none;color:var(--wkB);padding:2px 0;font-size:13px;text-decoration:underline;min-height:32px;text-align:left}
 .bdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#E9742B;margin-left:6px}
 .dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
@@ -582,6 +583,28 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <div class="actions"><button class="btn" data-close>Schließen</button></div>
 </div></dialog>
 
+<dialog id="dChg"><form class="dlg" id="fChg" method="dialog">
+  <h2>Änderung im Unterricht</h2>
+  <p class="hint" id="chgWhere"></p>
+  <div class="cats" id="chgTypes">
+    <button type="button" class="cat" data-ct="room" aria-pressed="false" style="--c:#E9742B">Anderer Raum</button>
+    <button type="button" class="cat" data-ct="time" aria-pressed="false" style="--c:#E9742B">Andere Zeit</button>
+    <button type="button" class="cat" data-ct="sub" aria-pressed="false" style="--c:#D64550">Wird vertreten</button>
+  </div>
+  <label id="chgRoomWrap" hidden>Neuer Raum <input type="text" id="chgRoom" autocomplete="off"></label>
+  <div class="two" id="chgTimeWrap" hidden>
+    <label>Neuer Beginn <input type="time" id="chgS"></label>
+    <label>Neues Ende <input type="time" id="chgE"></label>
+  </div>
+  <p class="hint" id="chgSubHint" hidden>Die Stunde wird von jemand anderem gehalten. Sie entfällt für dich und zählt nicht als Unterricht.</p>
+  <label>Notiz (optional) <input type="text" id="chgNote" autocomplete="off" placeholder="z. B. Klausur, Film, Vertretung Frau Meier"></label>
+  <div class="actions">
+    <button class="btn" type="button" id="chgDel" hidden>Änderung entfernen</button>
+    <button class="btn" type="button" data-close>Abbrechen</button>
+    <button class="btn primary" type="submit">Speichern</button>
+  </div>
+</form></dialog>
+
 <dialog id="dSet"><form class="dlg" id="fSet" method="dialog">
   <h2>Arbeitszeit-Einstellungen</h2>
   <label>Wochenziel (Stunden) <input type="number" id="setSoll" min="1" max="60" step="0.5"></label>
@@ -645,6 +668,7 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <h2 id="dtTitle"></h2>
   <div id="dtBody"></div>
   <div class="actions">
+    <button class="btn" id="dtChg" hidden>Änderung im Unterricht</button>
     <button class="btn" id="dtCancel" hidden>Diese Stunde entfällt</button>
     <button class="btn" id="dtCopy" hidden>Als eigenen Termin kopieren</button>
     <button class="btn" id="dtSkip" hidden>Nur diesen Termin löschen</button>
@@ -672,8 +696,8 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-11-01 14:39';
-var S={shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
+var APP_VERSION='2026-11-01 15:27';
+var S={changes:{},shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
 /* ---------- Datum ---------- */
@@ -696,10 +720,10 @@ function $(id){return document.getElementById(id)}
 
 /* ---------- Speicher ---------- */
 function load(){
-  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};S.encBackup=!!o.encBackup;if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};if(o.work)['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};return true}}catch(e){}
+  try{var r=localStorage.getItem(LS);if(r){var o=JSON.parse(r);S.n=o.n||5;S.sources=o.sources||[];S.lastBackup=o.lastBackup||null;S.hEnd=o.hEnd||20;S.raster=!!o.raster;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:false,goal:false};S.encBackup=!!o.encBackup;if(o.tt){S.tt=Object.assign(defaultTT(),o.tt);migrateTT()}if(o.work)S.work={entries:o.work.entries||[],running:o.work.running||null,soll:o.work.soll||41,sollUser:!!o.work.sollUser,autoUnt:o.work.autoUnt!==false,cats:o.work.cats||null};if(o.work)['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};S.changes=o.changes||{};return true}}catch(e){}
   return false;
 }
-function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,encBackup:S.encBackup,abs:S.abs,trips:S.trips,shield:S.shield,tt:S.tt}))}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({n:S.n,sources:S.sources.map(function(x){return x.type==='stundenplan'?Object.assign({},x,{events:[]}):x}),work:S.work,lastBackup:S.lastBackup,raster:S.raster,hEnd:S.hEnd,hidden:S.hidden,cancelled:S.cancelled,ob:S.ob,encBackup:S.encBackup,abs:S.abs,trips:S.trips,shield:S.shield,changes:S.changes,tt:S.tt}))}catch(e){}}
 function ensureLocal(){
   if(!S.sources.some(function(s){return s.id==='local'})){
     S.sources.unshift({id:'local',name:'Meine Termine',type:'local',color:'#64748B',visible:true,events:[],url:''});
@@ -817,11 +841,12 @@ function dayData(date,seen){
       var key=e.title.toLowerCase()+'|'+e.start+'|'+ds;
       if(seen[key]){dupes++;return}
       seen[key]=1;
-      var item={e:e,src:src};
-      if(e.allDay)all.push(item);
+      var ea=evAdj(src,e);
+      var item={e:ea,src:src};
+      if(ea.allDay)all.push(item);
       else{
-        item.s=Math.round((Math.max(e.start,ds)-ds)/60000);
-        item.en=Math.round((Math.min(e.end,de)-ds)/60000);
+        item.s=Math.round((Math.max(ea.start,ds)-ds)/60000);
+        item.en=Math.round((Math.min(ea.end,de)-ds)/60000);
         timed.push(item);
       }
     });
@@ -901,7 +926,7 @@ function render(){
       var top=(it.s/60-h0)*HOUR,ht=Math.max(18,(it.en-it.s)/60*HOUR-2);
       var w=100/it.cols,l=it.col*w;
       var showTime=ht>=34, showLoc=ht>=48&&it.e.loc;
-      return '<button class="ev'+(it.e.done?' done':'')+(isCx(it.src,it.e)?' cx':'')+(ht<34?' short':'')+'" style="--c:'+(it.e.color||it.src.color)+';top:'+top+'px;height:'+ht+'px;left:calc('+l+'% + 1px);width:calc('+w+'% - 2px)" data-ev="'+it.e.id+'" data-src="'+it.src.id+'" data-od="'+(it.e.od||'')+'"><b>'+esc(it.e.title)+'</b>'+(showTime?'<small>'+(isCx(it.src,it.e)?'entfällt · ':'')+hm(it.e.start)+'–'+hm(it.e.end)+(showLoc?' · '+esc(it.e.loc):'')+'</small>':'')+'</button>';
+      return '<button class="ev'+(it.e.done?' done':'')+(isCx(it.src,it.e)?' cx':'')+(it.e.chg?' chg':'')+(ht<34?' short':'')+'" style="--c:'+(it.e.color||it.src.color)+';top:'+top+'px;height:'+ht+'px;left:calc('+l+'% + 1px);width:calc('+w+'% - 2px)" data-ev="'+it.e.id+'" data-src="'+it.src.id+'" data-od="'+(it.e.od||'')+'"><b>'+esc(it.e.title)+'</b>'+(showTime?'<small>'+(isCx(it.src,it.e)?'entfällt · ':'')+hm(it.e.start)+'–'+hm(it.e.end)+(showLoc?' · '+esc(it.e.loc):'')+'</small>':'')+'</button>';
     }).join('');
     var now='';
     if(isT){var nm=new Date();var m=nm.getHours()*60+nm.getMinutes();if(m>=h0*60&&m<=h1*60)now='<div class="now" style="top:'+((m/60-h0)*HOUR)+'px"></div>'}
@@ -1211,10 +1236,11 @@ function showDetail(srcId,evId,od){
   detailRef={s:s,e:e,od:od||''};
   var ev=e;
   if(e.rep&&od){var oc=occOn(e,parseDate(od));if(oc)ev=Object.assign({},e,{start:oc.start,end:oc.end})}
+  if(isLessonSrc(s))ev=evAdj(s,ev);
   $('dtTitle').textContent=e.title;
   var when=ev.allDay?new Date(ev.start).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+' (ganztägig)':
     new Date(ev.start).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+', '+hm(ev.start)+'–'+hm(ev.end)+' Uhr';
-  $('dtBody').innerHTML='<p style="margin:0 0 6px">'+esc(when)+'</p>'+(e.loc?'<p style="margin:0 0 6px">Ort: '+esc(e.loc)+'</p>':'')+
+  $('dtBody').innerHTML='<p style="margin:0 0 6px">'+esc(when)+'</p>'+(ev.loc?'<p style="margin:0 0 6px">Ort: '+esc(ev.loc)+'</p>':'')+
     '<p class="meta" style="margin:0;color:var(--muted)"><i class="dot" style="--c:'+(e.color||s.color)+';display:inline-block;margin-right:6px"></i>'+esc(s.name)+'</p>';
   $('dtDelete').hidden=s.id!=='local';
   $('dtDelete').textContent=e.rep?'Ganze Serie löschen':'Termin löschen';
@@ -1225,7 +1251,11 @@ function showDetail(srcId,evId,od){
   var canCx=(s.type==='stundenplan'||s.type==='webuntis');
   $('dtCancel').hidden=!canCx||!!e.cancelled||(canCx&&(!!absOn(new Date(e.start))||!!tripOn(new Date(e.start))));
   $('dtCancel').textContent=S.cancelled[cxKey(s,e)]?'Ausfall rückgängig machen':'Als ausgefallen markieren';
-  if(canCx&&isCx(s,e))$('dtBody').innerHTML+='<p style="margin:8px 0 0"><b>Diese Stunde fällt aus</b>'+(e.cancelled?' (von WebUntis gemeldet)':(cxReason(new Date(e.start))?' ('+esc(cxReason(new Date(e.start)))+')':''))+' und zählt nicht als Unterricht.</p>';
+  $('dtChg').hidden=!canCx;
+  $('dtChg').textContent=S.changes[cxKey(s,e)]?'Änderung bearbeiten':'Änderung im Unterricht';
+  var ct=canCx?chgText(s,e,ev):'';
+  if(ct)$('dtBody').innerHTML+='<p style="margin:8px 0 0;padding:8px 10px;border-radius:10px;background:#FDEBDD;color:#7A3A0B"><b>Änderung:</b> '+esc(ct)+'</p>';
+  if(canCx&&isCx(s,e))$('dtBody').innerHTML+='<p style="margin:8px 0 0"><b>Diese Stunde fällt aus</b>'+(e.cancelled?' (von WebUntis gemeldet)':((S.changes[cxKey(s,e)]&&S.changes[cxKey(s,e)].sub)?' (wird vertreten)':(cxReason(new Date(e.start))?' ('+esc(cxReason(new Date(e.start)))+')':'')))+' und zählt nicht als Unterricht.</p>';
   $('dtEdit').hidden=s.id!=='local';
   $('dtEdit').textContent=e.rep?'Serie bearbeiten':'Bearbeiten';
   openDlg($('dDetail'));
@@ -1362,9 +1392,33 @@ setInterval(function(){
   if(b)b.textContent=t;if(rt)rt.textContent=t;
 },1000);
 
-function cxKey(src,e){return src.id+'|'+e.title+'|'+e.start}
+function cxKey(src,e){return src.id+'|'+e.title+'|'+(e.ostart||e.start)}
+function isLessonSrc(src){return src.type==='webuntis'||src.type==='stundenplan'}
+function evAdj(src,e){
+  if(!isLessonSrc(src))return e;
+  var c=S.changes[src.id+'|'+e.title+'|'+e.start];
+  if(!c)return e;
+  var o=Object.assign({},e,{ostart:e.start,chg:c});
+  if(c.room)o.loc=c.room;
+  if(c.s&&c.e){
+    var d=new Date(e.start),y=d.getFullYear(),m=d.getMonth(),dd=d.getDate();
+    o.start=new Date(y,m,dd,+c.s.slice(0,2),+c.s.slice(3,5)).getTime();
+    o.end=new Date(y,m,dd,+c.e.slice(0,2),+c.e.slice(3,5)).getTime();
+  }
+  return o;
+}
+function chgText(src,e,ev){
+  var c=S.changes[cxKey(src,e)];if(!c)return '';
+  var p=[];
+  if(c.sub)p.push('wird vertreten');
+  if(c.room)p.push('Raum '+c.room+(e.loc?' (statt '+e.loc+')':''));
+  if(c.s&&c.e)p.push('Zeit '+c.s+'–'+c.e+' (statt '+hm(e.start)+'–'+hm(e.end)+')');
+  if(c.note)p.push('Notiz: '+c.note);
+  return p.join(' · ');
+}
 function isCx(src,e){
   if(e.cancelled||S.cancelled[cxKey(src,e)])return true;
+  if(isLessonSrc(src)&&S.changes[cxKey(src,e)]&&S.changes[cxKey(src,e)].sub)return true;
   return (src.type==='webuntis'||src.type==='stundenplan')&&!!(absOn(new Date(e.start))||tripOn(new Date(e.start)));
 }
 function autoEvents(ds,de){
@@ -1392,11 +1446,12 @@ function autoLessons(ds,de){
   var srcs=S.sources.filter(function(x){return x.type==='webuntis'}).concat(S.sources.filter(function(x){return x.type==='stundenplan'}));
   srcs.forEach(function(src){
     src.events.forEach(function(e){
-      if(e.allDay||e.start<ds||e.start>=de||e.end>now)return;
+      var a=evAdj(src,e);
+      if(a.allDay||a.start<ds||a.start>=de||a.end>now)return;
       if(isCx(src,e))return;
       var k=e.title.toLowerCase()+'|'+e.start,ks='s|'+e.start;
       if(seen[k]||seen[ks])return;seen[k]=1;seen[ks]=1;
-      out.push({id:'u'+src.id+e.id,cat:e.kind==='aufsicht'?'aufsicht':'unterricht',start:e.start,end:e.end,note:e.title,virtual:true,srcName:src.type==='stundenplan'?'Stundenplan':'WebUntis'});
+      out.push({id:'u'+src.id+e.id,cat:e.kind==='aufsicht'?'aufsicht':'unterricht',start:a.start,end:a.end,note:e.title,virtual:true,srcName:src.type==='stundenplan'?'Stundenplan':'WebUntis'});
     });
   });
   return out;
@@ -1788,10 +1843,11 @@ function plannedWork(from,de){
   var srcs=S.sources.filter(function(x){return x.type==='webuntis'}).concat(S.sources.filter(function(x){return x.type==='stundenplan'}));
   srcs.forEach(function(src){
     src.events.forEach(function(e){
-      if(e.allDay||e.start>=de||e.end<=from||isCx(src,e))return;
+      var a=evAdj(src,e);
+      if(a.allDay||a.start>=de||a.end<=from||isCx(src,e))return;
       var k=e.title.toLowerCase()+'|'+e.start,ks='s|'+e.start;
       if(seen[k]||seen[ks])return;seen[k]=1;seen[ks]=1;
-      out.lessons+=(e.end-e.start)/60000;
+      out.lessons+=(a.end-a.start)/60000;
     });
   });
   S.trips.forEach(function(t){
@@ -2162,7 +2218,8 @@ function buildBackup(){
     work:{entries:S.work.entries,soll:S.work.soll,sollUser:S.work.sollUser,autoUnt:S.work.autoUnt,cats:S.work.cats,days:S.work.days,ferienFrei:S.work.ferienFrei,zkFrom:S.work.zkFrom,name:S.work.name,vertretungAdded:S.work.vertretungAdded},
     abs:S.abs,
     trips:S.trips,
-    shield:S.shield
+    shield:S.shield,
+    changes:S.changes
   };
 }
 function stampName(){var d=new Date();return 'lehrerkalender-sicherung-'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'.json'}
@@ -2219,7 +2276,7 @@ $('bGo').onclick=function(){
   S.n=o.n>=1&&o.n<=7?o.n:5;
   S.sources=o.sources;S.hidden=o.hidden||{};S.cancelled=o.cancelled||{};S.ob=o.ob||{hide:true,goal:true};S.tt=o.tt?Object.assign(defaultTT(),o.tt):defaultTT();migrateTT();
   S.work={entries:(o.work&&o.work.entries)||[],running:null,soll:(o.work&&o.work.soll)||41,sollUser:!!(o.work&&o.work.sollUser),autoUnt:!(o.work&&o.work.autoUnt===false),cats:(o.work&&o.work.cats)||null};
-  ['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work&&o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};
+  ['days','ferienFrei','zkFrom','name','vertretungAdded'].forEach(function(k){if(o.work&&o.work[k]!==undefined)S.work[k]=o.work[k]});S.abs=o.abs||[];S.trips=o.trips||[];S.shield=o.shield||{idle:60,onReturn:false};S.changes=o.changes||{};
   ensureLocal();genTT();ensureCats();if(!S.work.sollUser&&S.work.soll===40)S.work.soll=41;save();pendingRestore=null;
   $('dBackup').close();
   S.anchor=new Date();S.wAnchor=new Date();
@@ -2715,6 +2772,61 @@ async function packBackup(){
   return {name:stampName().replace('.json','-verschluesselt.json'),text:JSON.stringify(enc),enc:true};
 }
 $('bEnc').onchange=function(){S.encBackup=this.checked;save()};
+
+/* ---------- Änderung im Unterricht ---------- */
+function chgUi(){
+  var on=function(t){return $('chgTypes').querySelector('[data-ct='+t+']').getAttribute('aria-pressed')==='true'};
+  $('chgRoomWrap').hidden=!on('room');
+  $('chgTimeWrap').hidden=!on('time');
+  $('chgSubHint').hidden=!on('sub');
+}
+function openChg(){
+  if(!detailRef)return;
+  var s0=detailRef.s,e=detailRef.e,c=S.changes[cxKey(s0,e)]||{};
+  $('chgWhere').textContent=e.title+' · '+new Date(e.start).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+', '+hm(e.start)+'–'+hm(e.end)+' Uhr'+(e.loc?' · '+e.loc:'');
+  var set=function(t,v){$('chgTypes').querySelector('[data-ct='+t+']').setAttribute('aria-pressed',String(!!v))};
+  set('room',!!c.room);set('time',!!(c.s&&c.e));set('sub',!!c.sub);
+  $('chgRoom').value=c.room||e.loc||'';
+  $('chgS').value=c.s||hm(e.start);$('chgE').value=c.e||hm(e.end);
+  $('chgNote').value=c.note||'';
+  $('chgDel').hidden=!S.changes[cxKey(s0,e)];
+  chgUi();
+  $('dDetail').close();
+  openDlg($('dChg'));
+}
+$('dtChg').onclick=openChg;
+$('chgTypes').addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-ct]');if(!b)return;
+  var t=b.dataset.ct,now=b.getAttribute('aria-pressed')!=='true';
+  b.setAttribute('aria-pressed',String(now));
+  if(t==='sub'&&now){['room','time'].forEach(function(x){$('chgTypes').querySelector('[data-ct='+x+']').setAttribute('aria-pressed','false')})}
+  if((t==='room'||t==='time')&&now){$('chgTypes').querySelector('[data-ct=sub]').setAttribute('aria-pressed','false')}
+  chgUi();
+});
+$('fChg').addEventListener('submit',function(ev){
+  ev.preventDefault();
+  if(!detailRef)return;
+  var s0=detailRef.s,e=detailRef.e,k=cxKey(s0,e),c={};
+  var on=function(t){return $('chgTypes').querySelector('[data-ct='+t+']').getAttribute('aria-pressed')==='true'};
+  if(on('sub'))c.sub=true;
+  if(on('room')){var r=$('chgRoom').value.trim();if(!r){toast('Bitte den neuen Raum eingeben.');return}c.room=r}
+  if(on('time')){
+    var a=$('chgS').value,b=$('chgE').value;
+    if(!a||!b||b<=a){toast('Das neue Ende muss nach dem neuen Beginn liegen.');return}
+    c.s=a;c.e=b;
+  }
+  var n=$('chgNote').value.trim();if(n)c.note=n;
+  var old=S.changes[k];
+  if(!Object.keys(c).length){toast('Wähle eine Änderung oder schreibe eine Notiz.');return}
+  S.changes[k]=c;save();$('dChg').close();render();
+  toast(c.sub?'Als vertreten gespeichert. Die Stunde zählt nicht als Unterricht.':'Änderung gespeichert.',function(){if(old)S.changes[k]=old;else delete S.changes[k];save();render()});
+});
+$('chgDel').onclick=function(){
+  if(!detailRef)return;
+  var k=cxKey(detailRef.s,detailRef.e),old=S.changes[k];
+  delete S.changes[k];save();$('dChg').close();render();
+  toast('Änderung entfernt.',function(){if(old){S.changes[k]=old;save();render()}});
+};
 
 /* ---------- Wischen zwischen den Wochen ---------- */
 function slideAnim(el,dir){
