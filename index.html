@@ -481,6 +481,10 @@ dialog::backdrop{background:rgba(10,16,22,.55)}
   <div class="cats" id="lChips" style="margin-top:-4px"></div>
   <label id="lRoomWrap"><span id="lRoomLbl">Raum (optional)</span> <input type="text" id="lRoom" autocomplete="off"></label>
   <label class="inline" id="lFullWrap"><input type="checkbox" id="lFull"> Ganztägig (durchgehend 8 bis 16 Uhr)</label>
+  <div id="lUstdWrap" hidden>
+    <label>Zählt als Unterrichtsstunden <input type="number" id="lUstd" min="0.5" max="12" step="0.5" value="6" inputmode="decimal"></label>
+    <p class="muted" style="margin:4px 0 0" id="lUstdHint"></p>
+  </div>
   <div class="two">
     <label>Gilt in
       <select id="lWk">
@@ -719,7 +723,7 @@ var HINTS={
 var NAMES={webuntis:'WebUntis',iserv:'IServ',google:'Google',icloud:'iCloud',ics:'Kalender',local:'Meine Termine',stundenplan:'Stundenplan'};
 var DEFCOL={webuntis:'#2F6FED',iserv:'#2E9E5B',google:'#D64550',icloud:'#8B5CF6',ics:'#E9742B'};
 var LS='lehrerkalender-v1';
-var APP_VERSION='2026-11-01 20:03';
+var APP_VERSION='2026-11-01 20:11';
 var S={reg:[],changes:{},shield:{idle:60,onReturn:false},trips:[],abs:[],encBackup:false,ob:{hide:false,goal:false},raster:false,tt:null,hidden:{},cancelled:{},hEnd:20,lastBackup:null,n:5,sources:[],anchor:new Date(),work:{entries:[],running:null,soll:41,autoUnt:true,cats:null},wAnchor:new Date(),tab:'cal'};
 var uid=0,lastH1=20,evEdit=null,reTarget=null;
 
@@ -1276,6 +1280,7 @@ function showDetail(srcId,evId,od){
   $('dtCancel').textContent=S.cancelled[cxKey(s,e)]?'Ausfall rückgängig machen':'Als ausgefallen markieren';
   $('dtChg').hidden=!canCx;
   $('dtChg').textContent=S.changes[cxKey(s,e)]?'Änderung bearbeiten':'Änderung im Unterricht';
+  if(canCx&&e.full)$('dtBody').innerHTML+='<p style="margin:8px 0 0">Zählt als <b>'+String(+e.ustd||6).replace('.',',')+' Unterrichtsstunden</b> ('+hmm(fullMin(e))+' Std Arbeitszeit).</p>';
   var ct=canCx?chgText(s,e,ev):'';
   if(ct)$('dtBody').innerHTML+='<p style="margin:8px 0 0;padding:8px 10px;border-radius:10px;background:#FDEBDD;color:#7A3A0B"><b>Änderung:</b> '+esc(ct)+'</p>';
   if(canCx&&isCx(s,e))$('dtBody').innerHTML+='<p style="margin:8px 0 0"><b>Diese Stunde fällt aus</b>'+(e.cancelled?' (von WebUntis gemeldet)':((S.changes[cxKey(s,e)]&&S.changes[cxKey(s,e)].sub)?' (wird vertreten)':(cxReason(new Date(e.start))?' ('+esc(cxReason(new Date(e.start)))+')':'')))+' und zählt nicht als Unterricht.</p>';
@@ -1465,6 +1470,8 @@ function autoEvents(ds,de){
   return out;
 }
 function autoEntries(ds,de){var nw=Date.now();return autoLessons(ds,de).concat(autoEvents(ds,de),autoTrips(ds,de),regEntries(ds,de).filter(function(e){return e.end<=nw}))}
+function ustdUnit(){var sl=S.tt.slots.find(function(x){return !x.pause});return sl?toMin(sl.e)-toMin(sl.s):45}
+function fullMin(e){return Math.round((+e.ustd||6)*ustdUnit())}
 function autoLessons(ds,de){
   if(S.work.autoUnt===false)return [];
   var now=Date.now(),seen={},out=[];
@@ -1476,7 +1483,9 @@ function autoLessons(ds,de){
       if(isCx(src,e))return;
       var k=e.title.toLowerCase()+'|'+e.start,ks='s|'+e.start;
       if(seen[k]||seen[ks])return;seen[k]=1;seen[ks]=1;
-      out.push({id:'u'+src.id+e.id,cat:e.kind==='aufsicht'?'aufsicht':'unterricht',start:a.start,end:a.end,note:e.title,virtual:true,srcName:src.type==='stundenplan'?'Stundenplan':'WebUntis'});
+      var ent={id:'u'+src.id+e.id,cat:e.kind==='aufsicht'?'aufsicht':'unterricht',start:a.start,end:a.end,note:e.title,virtual:true,srcName:src.type==='stundenplan'?'Stundenplan':'WebUntis'};
+      if(e.full){ent.end=a.start+fullMin(e)*60000;ent.reg=true;ent.srcName='Stundenplan · '+String(+e.ustd||6).replace('.',',')+' Unterrichtsstd.'}
+      out.push(ent);
     });
   });
   return out;
@@ -1936,7 +1945,7 @@ function plannedWork(from,de){
       if(a.allDay||a.start>=de||a.end<=from||isCx(src,e))return;
       var k=e.title.toLowerCase()+'|'+e.start,ks='s|'+e.start;
       if(seen[k]||seen[ks])return;seen[k]=1;seen[ks]=1;
-      out.lessons+=(a.end-a.start)/60000;
+      out.lessons+=e.full?fullMin(e):(a.end-a.start)/60000;
     });
   });
   S.trips.forEach(function(t){
@@ -2473,7 +2482,7 @@ function genTT(){
           if(l.wk!=='ab'&&l.wk!==type)return;
           var s1=tt.slots[l.slot],s2=tt.slots[Math.min(tt.slots.length-1,l.slot+l.span-1)];
           if(!s1||!s2)return;
-          ev.push(Object.assign({id:'tt'+l.id+'-'+dInput(d),title:l.title,loc:l.room||'',start:atMin(d,(l.cs&&l.ce)?l.cs:s1.s),end:atMin(d,(l.cs&&l.ce)?l.ce:s2.e),allDay:false,tt:true},l.color?{color:l.color}:(l.kind==='aufsicht'?{color:'#0F8B8D'}:{}),l.kind?{kind:l.kind}:{}));
+          ev.push(Object.assign({id:'tt'+l.id+'-'+dInput(d),title:l.title,loc:l.room||'',start:atMin(d,(l.cs&&l.ce)?l.cs:s1.s),end:atMin(d,(l.cs&&l.ce)?l.ce:s2.e),allDay:false,tt:true},l.color?{color:l.color}:(l.kind==='aufsicht'?{color:'#0F8B8D'}:{}),l.kind?{kind:l.kind}:{},l.full?{full:true,ustd:+l.ustd||6}:{}));
         });
       }
     }
@@ -2509,7 +2518,7 @@ function renderTT(){
   });
   vis.forEach(function(l){
     if(l.kind==='aufsicht')return;
-    g+='<button type="button" class="ttc" data-ttl="'+l.id+'" style="--c:'+(l.color||lessonDefaultColor(''))+';grid-column:'+(l.day+2)+';grid-row:'+(l.slot+2)+' / span '+l.span+'"><b>'+esc(l.title)+'</b>'+(l.room?'<small>'+esc(l.room)+'</small>':'')+((l.cs&&l.ce)?'<small>'+l.cs+'–'+l.ce+'</small>':'')+'</button>';
+    g+='<button type="button" class="ttc" data-ttl="'+l.id+'" style="--c:'+(l.color||lessonDefaultColor(''))+';grid-column:'+(l.day+2)+';grid-row:'+(l.slot+2)+' / span '+l.span+'"><b>'+esc(l.title)+'</b>'+(l.room?'<small>'+esc(l.room)+'</small>':'')+((l.cs&&l.ce)?'<small>'+l.cs+'–'+l.ce+'</small>':'')+(l.full?'<small><b>'+String(l.ustd||6).replace('.',',')+' Ustd. zählen</b></small>':'')+'</button>';
   });
   g+='</div>';
   h+='<div class="wcard"><div class="scroll">'+g+'</div></div>';
@@ -2607,6 +2616,7 @@ function openLesson(id,day,slot){
   $('lCustom').checked=!!(l&&l.cs&&l.ce&&!l.full);$('lTimes').hidden=!$('lCustom').checked;
   if(l&&l.cs&&l.ce&&!l.full){$('lCs').value=l.cs;$('lCe').value=l.ce}else lDefaultTimes();
   $('lFull').checked=!!(l&&l.full);$('lFullWrap').hidden=pause;
+  $('lUstd').value=(l&&l.full&&l.ustd)?l.ustd:6;
   if(l&&l.full)$('lCustom').checked=false;
   applyFullUI();
   openDlg($('dLesson'));
@@ -2616,7 +2626,14 @@ function applyFullUI(){
   $('lSpanWrap').hidden=!!(ttEdit&&ttEdit.pause)||f;
   $('lCustom').closest('label').hidden=f;
   $('lTimes').hidden=f||!$('lCustom').checked;
+  $('lUstdWrap').hidden=!f;
+  updateUstdHint();
 }
+function updateUstdHint(){
+  var n=parseFloat($('lUstd').value),u=ustdUnit();
+  $('lUstdHint').textContent=isNaN(n)?'':'= '+hmm(Math.round(n*u))+' Std Arbeitszeit (1 Unterrichtsstunde = '+u+' Min). Die Zeit von 8 bis 16 Uhr wird nur im Kalender gezeigt und nicht als Arbeitszeit gezählt.';
+}
+$('lUstd').addEventListener('input',updateUstdHint);
 $('lFull').addEventListener('change',applyFullUI);
 function afterTTChange(){genTT();save();renderTT()}
 function needsChoice(v){
@@ -2654,6 +2671,8 @@ $('fLesson').addEventListener('submit',function(ev){
   var title=$('lTitle').value.trim();if(!title||!ttEdit)return;
   var full=!ttEdit.pause&&$('lFull').checked;
   var custom=!full&&$('lCustom').checked,cs=$('lCs').value,ce=$('lCe').value;
+  var ust=parseFloat($('lUstd').value);
+  if(full&&(isNaN(ust)||ust<0.5||ust>12)){toast('Bitte angeben, wie viele Unterrichtsstunden der Tag zählt (0,5 bis 12).');return}
   if(custom&&(!cs||!ce||ce<=cs)){toast('Bei der abweichenden Uhrzeit muss das Ende nach dem Beginn liegen.');return}
   var pause=!!ttEdit.pause,span=pause?1:(full?S.tt.slots.length:(+$('lSpan').value||1)),wk=$('lWk').value,d=ttEdit.day,sl=full?0:ttEdit.slot,editId=ttEdit.id,room=$('lRoom').value.trim();
   var color=(document.querySelector('input[name=lc]:checked')||{}).value||'',propagate=!pause;
@@ -2669,7 +2688,7 @@ $('fLesson').addEventListener('submit',function(ev){
         if(o.slot<sl+span&&sl<o.slot+o.span&&(o.wk==='ab'||wk==='ab'||o.wk===wk)){replaced.push(o.title);return false}
         return true;
       });
-      ver.lessons.push(Object.assign({id:(idx===0&&editId)?editId:newId(),day:dd,slot:sl,span:span,title:title,room:room,wk:wk},color?{color:color}:{},pause?{kind:'aufsicht'}:{},full?{full:true,cs:'08:00',ce:'16:00'}:(custom?{cs:cs,ce:ce}:{})));
+      ver.lessons.push(Object.assign({id:(idx===0&&editId)?editId:newId(),day:dd,slot:sl,span:span,title:title,room:room,wk:wk},color?{color:color}:{},pause?{kind:'aufsicht'}:{},full?{full:true,ustd:ust,cs:'08:00',ce:'16:00'}:(custom?{cs:cs,ce:ce}:{})));
     });
     if(propagate)ver.lessons.forEach(function(o){if(!o.kind&&normT(o.title)===normT(title)){if(color)o.color=color;else delete o.color}});
     if(!ver.from)ver.from=dInput(monday(new Date()));
